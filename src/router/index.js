@@ -4,6 +4,7 @@ import Home from '../pages/Home.vue'
 import Login from '../pages/Login.vue'
 import Medicamentos from '../pages/Medicamentos.vue'
 import HistorialMedico from '../pages/HistorialMedico.vue'
+import Registro from '../pages/Registro.vue'
 
 
 const routes = [
@@ -12,6 +13,7 @@ const routes = [
   { path: '/Login', component: Login },
   { path: '/Medicamentos', component: Medicamentos },
   { path: '/HistorialMedico', component: HistorialMedico },
+  { path: '/Registro', component: Registro },
 ]
 
 const router = createRouter({

@@ -18,6 +18,7 @@
           v-if="paso === 1"
           v-model="rut"
           label="RUT Chileno"
+          :rules="[validarRut]"
           required
         ></v-text-field>
 
@@ -45,6 +46,8 @@
           v-model="fecha"
           label="Fecha"
           type="date"
+          :min="fechaMin"
+          :max="fechaMax"
           required
         ></v-text-field>
 
@@ -89,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import Header from '@/components/header/Header.vue'
 
 const paso = ref(1)
@@ -100,6 +103,14 @@ const fecha = ref('')
 const medico = ref('')
 const hora = ref('')
 const mensaje = ref('')
+
+const hoy = new Date();
+const fechaMin = hoy.toISOString().split('T')[0];
+
+const tresMesesDespues = new Date();
+tresMesesDespues.setMonth(tresMesesDespues.getMonth() + 3);
+const fechaMax = tresMesesDespues.toISOString().split('T')[0];
+
 
 const sucursales = [
   'Sucursal Centro',
@@ -126,11 +137,9 @@ const medicosPorEspecialidad = {
 
 const medicosDisponibles = computed(() => {
   if (!especialidad.value) return []
-  // Aquí podrías filtrar por fecha también si tienes esa lógica
   return medicosPorEspecialidad[especialidad.value] || []
 })
 
-// Ejemplo de horas disponibles por médico y fecha (en una app real, esto vendría de una API)
 const horasPorMedico = {
   'Dr. Soto': ['09:00', '10:00', '11:00'],
   'Dra. Pérez': ['12:00', '13:00'],
@@ -143,9 +152,21 @@ const horasPorMedico = {
 
 const horasDisponibles = computed(() => {
   if (!medico.value) return []
-  // Aquí podrías filtrar por fecha también si tienes esa lógica
   return horasPorMedico[medico.value] || []
 })
+
+function formatearRut(valor) {
+  valor = valor.replace(/[^\dkK]/g, '');
+  let cuerpo = valor.slice(0, -1);
+  let dv = valor.slice(-1);
+  cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return cuerpo ? `${cuerpo}-${dv}` : dv;
+}
+
+function validarRut(rut) {
+  const limpio = rut.replace(/[^\dkK]/g, '');
+  return limpio.length >= 8 && limpio.length <= 9 || 'El RUT debe tener entre 8 y 9 dígitos';
+}
 
 function siguientePaso() {
   if (paso.value < 6) {
@@ -154,4 +175,11 @@ function siguientePaso() {
     mensaje.value = `¡Reserva realizada para RUT ${rut.value} en ${sucursal}, especialidad ${especialidad}, el ${fecha} con ${medico.value} a las ${hora.value}!`
   }
 }
+
+watch(rut, (nuevo) => {
+  const limpio = nuevo.replace(/[^\dkK]/g, '');
+  if (nuevo && nuevo !== formatearRut(limpio)) {
+    rut.value = formatearRut(limpio);
+  }
+});
 </script>

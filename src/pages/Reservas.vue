@@ -1,0 +1,157 @@
+<template>
+  <v-app>
+    <Header />
+    <v-container max-width="500px" class="mt-14">
+      <h2 class="text-h4 mb-6">Reserva tu hora médica</h2>
+      <v-form @submit.prevent="siguientePaso">
+        <!-- Resumen dinámico -->
+        <div class="mb-2" v-if="paso > 1">
+          <div v-if="rut"><strong>RUT:</strong> {{ rut }}</div>
+          <div v-if="paso > 2 && sucursal"><strong>Sucursal:</strong> {{ sucursal }}</div>
+          <div v-if="paso > 3 && especialidad"><strong>Especialidad:</strong> {{ especialidad }}</div>
+          <div v-if="paso > 4 && fecha"><strong>Fecha:</strong> {{ fecha }}</div>
+          <div v-if="paso > 5 && medico"><strong>Médico:</strong> {{ medico }}</div>
+        </div>
+
+        <!-- Paso 1: RUT -->
+        <v-text-field
+          v-if="paso === 1"
+          v-model="rut"
+          label="RUT Chileno"
+          required
+        ></v-text-field>
+
+        <!-- Paso 2: Sucursal -->
+        <v-select
+          v-if="paso === 2"
+          v-model="sucursal"
+          :items="sucursales"
+          label="Sucursal"
+          required
+        ></v-select>
+
+        <!-- Paso 3: Especialidad -->
+        <v-select
+          v-if="paso === 3"
+          v-model="especialidad"
+          :items="especialidades"
+          label="Especialidad"
+          required
+        ></v-select>
+
+        <!-- Paso 4: Fecha -->
+        <v-text-field
+          v-if="paso === 4"
+          v-model="fecha"
+          label="Fecha"
+          type="date"
+          required
+        ></v-text-field>
+
+        <!-- Paso 5: Médico disponible -->
+        <v-select
+          v-if="paso === 5"
+          v-model="medico"
+          :items="medicosDisponibles"
+          label="Médico disponible"
+          required
+        ></v-select>
+
+        <!-- Paso 6: Hora disponible -->
+        <v-select
+          v-if="paso === 6"
+          v-model="hora"
+          :items="horasDisponibles"
+          label="Hora disponible"
+          required
+        ></v-select>
+
+        <v-btn
+          color="primary"
+          class="mt-4"
+          block
+          type="submit"
+        >
+          {{ paso < 6 ? 'Siguiente' : 'Reservar' }}
+        </v-btn>
+      </v-form>
+      <v-alert
+        v-if="mensaje"
+        type="success"
+        class="mt-4"
+        border="start"
+        prominent
+      >
+        {{ mensaje }}
+      </v-alert>
+    </v-container>
+  </v-app>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import Header from '@/components/header/Header.vue'
+
+const paso = ref(1)
+const rut = ref('')
+const sucursal = ref('')
+const especialidad = ref('')
+const fecha = ref('')
+const medico = ref('')
+const hora = ref('')
+const mensaje = ref('')
+
+const sucursales = [
+  'Sucursal Centro',
+  'Sucursal Norte',
+  'Sucursal Sur'
+]
+
+const especialidades = [
+  'Medicina General',
+  'Pediatría',
+  'Dermatología',
+  'Traumatología',
+  'Cardiología'
+]
+
+// Ejemplo de médicos por especialidad (en una app real, esto vendría de una API y filtrado por fecha)
+const medicosPorEspecialidad = {
+  'Medicina General': ['Dr. Soto', 'Dra. Pérez'],
+  'Pediatría': ['Dr. Ramírez', 'Dra. López'],
+  'Dermatología': ['Dra. Torres'],
+  'Traumatología': ['Dr. Díaz'],
+  'Cardiología': ['Dr. Silva']
+}
+
+const medicosDisponibles = computed(() => {
+  if (!especialidad.value) return []
+  // Aquí podrías filtrar por fecha también si tienes esa lógica
+  return medicosPorEspecialidad[especialidad.value] || []
+})
+
+// Ejemplo de horas disponibles por médico y fecha (en una app real, esto vendría de una API)
+const horasPorMedico = {
+  'Dr. Soto': ['09:00', '10:00', '11:00'],
+  'Dra. Pérez': ['12:00', '13:00'],
+  'Dr. Ramírez': ['09:30', '10:30'],
+  'Dra. López': ['11:30', '12:30'],
+  'Dra. Torres': ['14:00', '15:00'],
+  'Dr. Díaz': ['16:00', '17:00'],
+  'Dr. Silva': ['08:00', '09:00']
+}
+
+const horasDisponibles = computed(() => {
+  if (!medico.value) return []
+  // Aquí podrías filtrar por fecha también si tienes esa lógica
+  return horasPorMedico[medico.value] || []
+})
+
+function siguientePaso() {
+  if (paso.value < 6) {
+    paso.value++
+  } else {
+    mensaje.value = `¡Reserva realizada para RUT ${rut.value} en ${sucursal}, especialidad ${especialidad}, el ${fecha} con ${medico.value} a las ${hora.value}!`
+  }
+}
+</script>

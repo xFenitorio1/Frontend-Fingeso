@@ -28,7 +28,7 @@
 
         <!-- Otros enlaces -->
         <v-col cols="12" md="4">
-          <h3 class="font-weight-bold">Poner algo aca??</h3>
+          <h3 class="font-weight-bold">Que pongo acaa</h3>
           <div>Que</div>
           <div>Pongo</div>
           <div>Aca</div>

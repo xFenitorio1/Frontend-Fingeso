@@ -29,5 +29,5 @@
 <script setup>
 import { ref } from 'vue'
 // Simula el rol actual
-const rol = ref('medico') // Cambia a 'medico' para probar
+const rol = ref('paciente') // Cambia a 'medico' para probar
 </script>

@@ -33,8 +33,7 @@
           </div>
         </v-col>
       </v-row>
-
-      <!-- Nuestras especialidades centrado -->
+>
       <div class="text-center my-10">
         <span style="font-size:2.5rem;">
           Nuestras especialidades

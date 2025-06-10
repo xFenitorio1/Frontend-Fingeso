@@ -40,14 +40,28 @@ export default {
             password: ''
         };
     },
-    methods: {
-        login() {
-            if (this.email === 'admin@umbrella.cl' && this.password === '123') {
-                this.$router.push({path: '/'});
-            } else {
-                alert('Correo o contraseña incorrectos');
-            }
+methods: {
+    login() {
+        if (this.email === 'admin@umbrella.cl' && this.password === '123') {
+            localStorage.setItem('rol', 'admin');
+            this.$router.push({path: '/'});
+        }
+        else if (this.email === 'quimico@umbrella.cl' && this.password === '123') {
+            localStorage.setItem('rol', 'quimico');
+            this.$router.push({path: '/'});
+        }
+        else if (this.email === 'medico@umbrella.cl' && this.password === '123') {
+            localStorage.setItem('rol', 'medico');
+            this.$router.push({path: '/'});
+        } 
+        else if (this.email === 'paciente@gmail.cl' && this.password === '123') {
+            localStorage.setItem('rol', 'paciente');
+            this.$router.push({path: '/'});
+        } 
+        else {
+            alert('Correo o contraseña incorrectos');
         }
     }
+}
 };
 </script>

@@ -42,26 +42,28 @@ export default {
     },
 methods: {
     login() {
-        if (this.email === 'admin@umbrella.cl' && this.password === '123') {
-            localStorage.setItem('rol', 'admin');
-            this.$router.push({path: '/'});
-        }
-        else if (this.email === 'quimico@umbrella.cl' && this.password === '123') {
-            localStorage.setItem('rol', 'quimico');
-            this.$router.push({path: '/'});
-        }
-        else if (this.email === 'medico@umbrella.cl' && this.password === '123') {
-            localStorage.setItem('rol', 'medico');
-            this.$router.push({path: '/'});
-        } 
-        else if (this.email === 'paciente@gmail.cl' && this.password === '123') {
-            localStorage.setItem('rol', 'paciente');
-            this.$router.push({path: '/'});
-        } 
-        else {
-            alert('Correo o contraseña incorrectos');
+        const params = new URLSearchParams();
+        params.append("correo", this.email);
+        params.append("password", this.password);
+
+        fetch("http://localhost:8080/api/paciente/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: params,
+        })
+        .then(res => res.json())
+        .then(success => {
+            if (success) {
+                localStorage.setItem('rol', 'paciente');
+                this.$router.push({ path: '/' });
+            } else {
+                alert("Correo o contraseña incorrectos");
+            }
+        })
+        .catch(err => console.error(err));
         }
     }
-}
 };
 </script>

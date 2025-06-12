@@ -1,5 +1,6 @@
 <template>
     <v-app style="background-color: #fffdfc;">
+      <Header />
         <v-container>
             <v-row justify="center" align="center" style="min-height: 80vh;">
                 <v-col cols="12" md="8">
@@ -49,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const nombre = ref('')
 const correo = ref('')
@@ -94,4 +95,19 @@ async function registrar() {
     mensaje.value = `Error al registrar: ${e.message}`
   }
 }
+
+function formatearRut(valor) {
+  valor = valor.replace(/[^\dkK]/g, '');
+  let cuerpo = valor.slice(0, -1);
+  let dv = valor.slice(-1);
+  cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return cuerpo ? `${cuerpo}-${dv}` : dv;
+}
+
+watch(rut, (nuevo) => {
+  const limpio = nuevo.replace(/[^\dkK]/g, '');
+  if (nuevo && nuevo !== formatearRut(limpio)) {
+    rut.value = formatearRut(limpio);
+  }
+});
 </script>

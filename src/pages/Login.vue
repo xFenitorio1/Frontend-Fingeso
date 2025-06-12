@@ -41,29 +41,48 @@ export default {
         };
     },
 methods: {
-    login() {
-        const params = new URLSearchParams();
-        params.append("correo", this.email);
-        params.append("password", this.password);
+login() {
+    const payload = {
+        correo: this.email,
+        password: this.password
+    };
 
-        fetch("http://localhost:8080/api/paciente/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: params,
-        })
-        .then(res => res.json())
-        .then(success => {
-            if (success) {
-                localStorage.setItem('rol', 'paciente');
-                this.$router.push({ path: '/' });
-            } else {
-                alert("Correo o contraseña incorrectos");
-            }
-        })
-        .catch(err => console.error(err));
-        }
+fetch("http://localhost:8080/api/auth/login", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        correo: this.email,
+        password: this.password
+    }),
+})
+.then(res => {
+    console.log("Status de respuesta:", res.status);
+    if (!res.ok) {
+        return res.text().then(text => {
+            console.error("Respuesta del servidor:", res.status, text);
+            throw new Error("Error en el login");
+        });
+    }
+    return res.json();
+})
+.then(data => {
+        console.log("Respuesta JSON recibida:", data);
+    if (data && data.userType) {
+        const rol = data.userType.toLowerCase();
+        localStorage.setItem('rol', rol);
+        this.$router.push({ path: '/' });
+    } else {
+        alert("Correo o contraseña incorrectos");
+    }
+})
+.catch(err => {
+    console.error("Detalles del error:", err);
+    alert("Error al iniciar sesión");
+});
+
+}
     }
 };
 </script>

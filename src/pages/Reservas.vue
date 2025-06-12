@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <Header />
+    <!-- Esto se debe de poder refactorizar, pero lo hare mas tarde-->
     <v-container max-width="500px" class="mt-14">
       <h2 class="text-h4 mb-6">Reserva tu hora médica</h2>
       <v-form @submit.prevent="siguientePaso">
@@ -93,7 +94,8 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import Header from '@/components/header/Header.vue'
+import Header from '@/components/header/HeaderPatient.vue'
+import axios from 'axios'
 
 const paso = ref(1)
 const rut = ref('')
@@ -126,7 +128,6 @@ const especialidades = [
   'Cardiología'
 ]
 
-// Ejemplo de médicos por especialidad (en una app real, esto vendría de una API y filtrado por fecha)
 const medicosPorEspecialidad = {
   'Medicina General': ['Dr. Soto', 'Dra. Pérez'],
   'Pediatría': ['Dr. Ramírez', 'Dra. López'],
@@ -141,13 +142,13 @@ const medicosDisponibles = computed(() => {
 })
 
 const horasPorMedico = {
-  'Dr. Soto': ['09:00', '10:00', '11:00'],
-  'Dra. Pérez': ['12:00', '13:00'],
-  'Dr. Ramírez': ['09:30', '10:30'],
-  'Dra. López': ['11:30', '12:30'],
-  'Dra. Torres': ['14:00', '15:00'],
-  'Dr. Díaz': ['16:00', '17:00'],
-  'Dr. Silva': ['08:00', '09:00']
+  'Dr. Soto': ['09:00:00', '10:00:00', '11:00:00'],
+  'Dra. Pérez': ['12:00:00', '13:00:00'],
+  'Dr. Ramírez': ['09:30:00', '10:30:00'],
+  'Dra. López': ['11:30:00', '12:30:00'],
+  'Dra. Torres': ['14:00:00', '15:00:00'],
+  'Dr. Díaz': ['16:00:00', '17:00:00'],
+  'Dr. Silva': ['08:00:00', '09:00:00']
 }
 
 const horasDisponibles = computed(() => {
@@ -168,11 +169,38 @@ function validarRut(rut) {
   return limpio.length >= 8 && limpio.length <= 9 || 'El RUT debe tener entre 8 y 9 dígitos';
 }
 
-function siguientePaso() {
+async function siguientePaso() {
   if (paso.value < 6) {
     paso.value++
   } else {
-    mensaje.value = `¡Reserva realizada para RUT ${rut.value} en ${sucursal}, especialidad ${especialidad}, el ${fecha} con ${medico.value} a las ${hora.value}!`
+    await enviarCita()
+  }
+}
+
+async function enviarCita() {
+  try {
+    // 1. Obtener el pacienteId
+    const respuestaPaciente = await axios.get(`http://localhost:8080/api/paciente/getIdByRut/${rut.value}`)
+    const pacienteId = respuestaPaciente.data
+
+    // 2. Armar la cita
+    const nuevaCita = {
+      sucursal: sucursal.value,
+      medicoId: 1,
+      pacienteId: pacienteId,
+      fechaCita: fecha.value,
+      HoraCita: hora.value
+    }
+
+    // 3. Enviar la cita al backend
+    await axios.post('http://localhost:8080/api/cita/crearCita', nuevaCita)
+    
+    // 4. Mostrar mensaje de confirmación
+    mensaje.value = `¡Reserva realizada para RUT ${rut.value} en ${sucursal.value}, especialidad ${especialidad.value}, el ${fecha.value} con ${medico.value} a las ${hora.value}!`
+  
+  } catch (error) {
+    mensaje.value = 'Error al registrar la cita. Intenta nuevamente.'
+    console.error(error)
   }
 }
 

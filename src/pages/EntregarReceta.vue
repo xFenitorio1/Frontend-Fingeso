@@ -1,6 +1,9 @@
 <template>
   <v-app>
-    <Header />
+    <HeaderPatient v-if="rol === 'paciente'" />
+    <HeaderMedico v-else-if="rol === 'medico'" />
+    <HeaderQuimico v-else-if="rol === 'quimico'" />
+    <HeaderUnlogged v-else />
     <v-container max-width="600px" class="mt-16">
       <h2 class="text-h4 mb-6">Entregar Receta</h2>
       <v-text-field
@@ -58,8 +61,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import Header from '@/components/header/HeaderPatient.vue'
+import { ref, computed, onMounted } from 'vue'
+import HeaderPatient from '@/components/header/HeaderPatient.vue'
+import HeaderMedico from '@/components/header/HeaderMedico.vue'
+import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
+import HeaderQuimico from '@/components/header/HeaderQuimico.vue'
+
+const rol = ref(null)
+
+onMounted(() => {
+  rol.value = localStorage.getItem('rol')
+})
 
 const recetas = ref([
   {
@@ -85,7 +97,23 @@ const recetas = ref([
     medicamento: 'Amoxicilina 500mg',
     fecha: '2024-06-08',
     es_etiquetado: false
-  }
+  },
+    {
+    id: 4,
+    rut: '12.345.678-9',
+    nombre_paciente: 'Juan Pérez',
+    medicamento: 'Ibuprofeno 400mg',
+    fecha: '2024-06-09',
+    es_etiquetado: false
+  },
+    {
+    id: 5,
+    rut: '12.345.678-9',
+    nombre_paciente: 'Juan Pérez',
+    medicamento: 'Ibuprofeno 400mg',
+    fecha: '2024-06-09',
+    es_etiquetado: false
+  },
 ])
 
 const rutBusqueda = ref('')

@@ -1,6 +1,9 @@
 <template>
   <v-app>
-    <Header />
+    <HeaderPatient v-if="rol === 'paciente'" />
+    <HeaderMedico v-else-if="rol === 'medico'" />
+    <HeaderQuimico v-else-if="rol === 'quimico'" />
+    <HeaderUnlogged v-else />
     <!-- Esto se debe de poder refactorizar, pero lo hare mas tarde-->
     <v-container max-width="500px" class="mt-14">
       <h2 class="text-h4 mb-6">Reserva tu hora médica</h2>
@@ -93,8 +96,17 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import Header from '@/components/header/HeaderPatient.vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import HeaderPatient from '@/components/header/HeaderPatient.vue'
+import HeaderMedico from '@/components/header/HeaderMedico.vue'
+import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
+import HeaderQuimico from '@/components/header/HeaderQuimico.vue'
+
+const rol = ref(null)
+
+onMounted(() => {
+  rol.value = localStorage.getItem('rol')
+})
 import axios from 'axios'
 
 const paso = ref(1)

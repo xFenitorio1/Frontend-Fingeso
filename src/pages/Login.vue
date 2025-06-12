@@ -1,5 +1,9 @@
 <template>
     <v-app style="background-color: #fffdfc;">
+        <HeaderPatient v-if="rol === 'paciente'" />
+        <HeaderMedico v-else-if="rol === 'medico'" />
+        <HeaderQuimico v-else-if="rol === 'quimico'" />
+        <HeaderUnlogged v-else />
         <v-container>
             <v-row justify="center" align="center" style="height: 100vh;">
                 <v-col cols="12" md="6">
@@ -31,58 +35,54 @@
     </v-app>
 </template>
 
-<script>
-export default {
-    name: 'Login',
-    data() {
-        return {
-            email: '',
-            password: ''
-        };
-    },
-methods: {
-login() {
-    const payload = {
-        correo: this.email,
-        password: this.password
-    };
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import HeaderPatient from '@/components/header/HeaderPatient.vue'
+import HeaderMedico from '@/components/header/HeaderMedico.vue'
+import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
+import HeaderQuimico from '@/components/header/HeaderQuimico.vue'
 
-fetch("http://localhost:8080/api/auth/login", {
+const rol = ref(null)
+const email = ref('')
+const password = ref('')
+const router = useRouter()
+
+onMounted(() => {
+  rol.value = localStorage.getItem('rol')
+})
+
+function login() {
+  fetch("http://localhost:8080/api/auth/login", {
     method: "POST",
     headers: {
-        "Content-Type": "application/json",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-        correo: this.email,
-        password: this.password
+      correo: email.value,
+      password: password.value
     }),
-})
-.then(res => {
-    console.log("Status de respuesta:", res.status);
-    if (!res.ok) {
+  })
+    .then(res => {
+      if (!res.ok) {
         return res.text().then(text => {
-            console.error("Respuesta del servidor:", res.status, text);
-            throw new Error("Error en el login");
+          throw new Error("Error en el login: " + text);
         });
-    }
-    return res.json();
-})
-.then(data => {
-        console.log("Respuesta JSON recibida:", data);
-    if (data && data.userType) {
-        const rol = data.userType.toLowerCase();
-        localStorage.setItem('rol', rol);
-        this.$router.push({ path: '/' });
-    } else {
+      }
+      return res.json();
+    })
+    .then(data => {
+      if (data && data.userType) {
+        const userRol = data.userType.toLowerCase();
+        localStorage.setItem('rol', userRol);
+        router.push({ path: '/' });
+      } else {
         alert("Correo o contraseña incorrectos");
-    }
-})
-.catch(err => {
-    console.error("Detalles del error:", err);
-    alert("Error al iniciar sesión");
-});
-
+      }
+    })
+    .catch(err => {
+      alert("Error al iniciar sesión");
+      console.error(err);
+    });
 }
-    }
-};
 </script>

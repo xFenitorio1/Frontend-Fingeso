@@ -1,6 +1,9 @@
 <template>
   <v-app>
-    <Header />
+    <HeaderPatient v-if="rol === 'paciente'" />
+    <HeaderMedico v-else-if="rol === 'medico'" />
+    <HeaderQuimico v-else-if="rol === 'quimico'" />
+    <HeaderUnlogged v-else />
     <v-container style="margin-top: 64px;">
       <v-row class="my-6" align="center">
         <v-col cols="8">
@@ -50,7 +53,16 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import Header from '@/components/header/HeaderPatient.vue'
+import HeaderPatient from '@/components/header/HeaderPatient.vue'
+import HeaderMedico from '@/components/header/HeaderMedico.vue'
+import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
+import HeaderQuimico from '@/components/header/HeaderQuimico.vue'
+
+const rol = ref(null)
+
+onMounted(() => {
+  rol.value = localStorage.getItem('rol')
+})
 
 const search = ref('')
 const cargado = ref(false)

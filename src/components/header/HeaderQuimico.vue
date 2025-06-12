@@ -14,17 +14,13 @@
         </v-app-bar-title>
 
         <v-btn to="/Medicamentos">Medicamentos</v-btn>
-        <v-btn>Esfadades</v-btn>
-        <v-btn>Contacto</v-btn>
         
-        <v-btn color="white" variant="flat" class="text-primary" to="/Reservas">
-            Resfdadsa
+        <v-btn color="white" variant="flat" class="text-primary" to="/EntregarReceta">
+            Entregar Receta
         </v-btn>
     </v-app-bar>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-// Simula el rol actual
-const rol = ref('paciente') // Cambia a 'medico' para probar
 </script>

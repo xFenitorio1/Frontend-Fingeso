@@ -13,9 +13,8 @@
             Clínica Umbrella
         </v-app-bar-title>
 
-        <v-btn to="/Medicamentos">Medicamentos</v-btn>
-        <v-btn>gadafdaf</v-btn>
-        <v-btn>Contacto</v-btn>
+        <v-btn to="/Login">Ingresar</v-btn>
+        <v-btn to="/Login">Revisar Examenes</v-btn>
         
         <v-btn color="white" variant="flat" class="text-primary" to="/Reservas">
             Reserva tu Hora
@@ -25,6 +24,4 @@
 
 <script setup>
 import { ref } from 'vue'
-// Simula el rol actual
-const rol = ref('paciente') // Cambia a 'medico' para probar
 </script>

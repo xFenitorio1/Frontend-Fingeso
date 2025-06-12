@@ -14,8 +14,6 @@
         </v-app-bar-title>
 
         <v-btn to="/Medicamentos">Medicamentos</v-btn>
-        <v-btn>Egdaadg</v-btn>
-        <v-btn>Cgdato</v-btn>
         
         <!-- Solo para médicos -->
         <v-btn color="white" variant="flat" class="text-primary" to="/Agenda">
@@ -25,6 +23,4 @@
 
 <script setup>
 import { ref } from 'vue'
-// Simula el rol actual
-const rol = ref('paciente') // Cambia a 'medico' para probar
 </script>

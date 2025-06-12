@@ -1,5 +1,9 @@
 <template>
   <v-app style="background-color: #fffdfc;">
+    <HeaderPatient v-if="rol === 'paciente'" />
+    <HeaderMedico v-else-if="rol === 'medico'" />
+    <HeaderQuimico v-else-if="rol === 'quimico'" />
+    <HeaderUnlogged v-else />
     <v-container>
       <v-row justify="center" align="center" style="min-height: 80vh;">
         <v-col cols="12" md="8">
@@ -40,7 +44,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import HeaderPatient from '@/components/header/HeaderPatient.vue'
+import HeaderMedico from '@/components/header/HeaderMedico.vue'
+import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
+import HeaderQuimico from '@/components/header/HeaderQuimico.vue'
+
+const rol = ref(null)
+
+onMounted(() => {
+  rol.value = localStorage.getItem('rol')
+})
 
 const examenes = ref([
   {

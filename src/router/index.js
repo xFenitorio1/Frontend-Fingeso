@@ -7,6 +7,7 @@ import HistorialMedico from '../pages/HistorialMedico.vue'
 import Registro from '../pages/Registro.vue'
 import EntregarReceta from '../pages/EntregarReceta.vue'
 import Agenda from '../pages/Agenda.vue'
+import CrearCuentas from '@/pages/CrearCuentas.vue'
 
 
 const routes = [
@@ -18,6 +19,7 @@ const routes = [
   { path: '/Registro', component: Registro },
   { path: '/EntregarReceta', component: EntregarReceta },
   { path: '/Agenda', component: Agenda },
+  { path: '/CrearCuentas', component: CrearCuentas },
 ]
 
 const router = createRouter({

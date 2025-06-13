@@ -72,9 +72,14 @@ function login() {
       return res.json();
     })
     .then(data => {
+      console.log('Respuesta login:', data);
       if (data && data.userType) {
         const userRol = data.userType.toLowerCase();
         localStorage.setItem('rol', userRol);
+        if (userRol === 'medico' && data.id) {
+          localStorage.setItem('idMedico', data.id);
+          const idMedico = Number(localStorage.getItem('idMedico'));
+        }
         router.push({ path: '/' });
       } else {
         alert("Correo o contraseña incorrectos");

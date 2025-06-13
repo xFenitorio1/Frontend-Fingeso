@@ -6,6 +6,7 @@ import Medicamentos from '../pages/Medicamentos.vue'
 import HistorialMedico from '../pages/HistorialMedico.vue'
 import Registro from '../pages/Registro.vue'
 import EntregarReceta from '../pages/EntregarReceta.vue'
+import Agenda from '../pages/Agenda.vue'
 
 
 const routes = [
@@ -16,6 +17,7 @@ const routes = [
   { path: '/HistorialMedico', component: HistorialMedico },
   { path: '/Registro', component: Registro },
   { path: '/EntregarReceta', component: EntregarReceta },
+  { path: '/Agenda', component: Agenda },
 ]
 
 const router = createRouter({

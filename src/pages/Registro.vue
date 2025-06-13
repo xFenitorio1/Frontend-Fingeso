@@ -4,33 +4,37 @@
     <HeaderMedico v-else-if="rol === 'medico'" />
     <HeaderQuimico v-else-if="rol === 'quimico'" />
     <HeaderUnlogged v-else />
-        <v-container>
+        <v-container style="margin-top: 64px;">
             <v-row justify="center" align="center" style="min-height: 80vh;">
                 <v-col cols="12" md="8">
                     <v-card>
                         <v-card-title class="text-h5">Registro de Cuenta</v-card-title>
                         <v-card-text>
-                            <v-form @submit.prevent="registrar">
+                            <v-form ref="form" @submit.prevent="registrar">
                                 <v-text-field
                                     v-model="nombre"
                                     label="Nombre Completo"
+                                    :rules="[v => !!v || 'El nombre es obligatorio']"
                                     required
                                 ></v-text-field>
                                 <v-text-field
                                     v-model="correo"
                                     label="Correo Electrónico"
                                     type="email"
+                                    :rules="[v => !!v || 'El correo es obligatorio']"
                                     required
                                 ></v-text-field>
                                 <v-text-field
                                     v-model="rut"
                                     label="RUT Chileno"
+                                    :rules="[v => !!v || 'El RUT es obligatorio']"
                                     required
                                 ></v-text-field>
                                 <v-text-field
                                     v-model="password"
                                     label="Contraseña"
                                     type="password"
+                                    :rules="[v => !!v || 'La contraseña es obligatoria']"
                                     required
                                 ></v-text-field>
                                 <v-btn color="#C73636" class="mt-4" type="submit">Registrar</v-btn>
@@ -54,6 +58,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import HeaderPatient from '@/components/header/HeaderPatient.vue'
 import HeaderMedico from '@/components/header/HeaderMedico.vue'
 import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
@@ -65,6 +70,8 @@ onMounted(() => {
   rol.value = localStorage.getItem('rol')
 })
 
+const router = useRouter()
+const form = ref(null)
 const nombre = ref('')
 const correo = ref('')
 const rut = ref('')
@@ -72,6 +79,10 @@ const password = ref('')
 const mensaje = ref('')
 
 async function registrar() {
+
+  const valido = await form.value.validate();
+  if (!valido) return;  
+
   mensaje.value = ''
   
   const nuevoPaciente = {
@@ -98,11 +109,9 @@ async function registrar() {
 
     mensaje.value = `¡Registro exitoso para ${nombre.value}!`
     
-    // Limpia los campos
-    nombre.value = ''
-    correo.value = ''
-    rut.value = ''
-    password.value = ''
+    setTimeout(() => {
+      router.push('/')
+    }, 1000)
 
   } catch (e) {
     mensaje.value = `Error al registrar: ${e.message}`

@@ -15,22 +15,25 @@
                     No hay citas para mostrar.
                 </v-alert>
                 <v-row v-else>
-                    <v-col
+                <v-col
                     v-for="cita in citasFiltradas"
                     :key="cita.id"
                     cols="12"
                     class="mb-4"
-                    >
+                >
                     <v-card>
-                        <v-card-title>
-                        Medico: {{ cita.medico?.nombre || 'Desconocido' }}
-                        </v-card-title>
-                        <v-card-text>
+                    <v-card-title class="d-flex justify-space-between align-center">
+                        <span>Médico: {{ cita.medico?.nombre || 'Desconocido' }}</span>
+                        <v-btn color="error" size="small" @click="cancelarCita(cita)">
+                        Cancelar Cita
+                        </v-btn>
+                    </v-card-title>
+                    <v-card-text>
                         Fecha: {{ cita.fechaCita }}<br>
                         Hora: {{ cita.horaCita }}
-                        </v-card-text>
+                    </v-card-text>
                     </v-card>
-                    </v-col>
+                </v-col>
                 </v-row>
                 </v-card-text>
             </v-card>
@@ -53,22 +56,46 @@ const idPaciente = ref(null)
 const citas = ref([])
 
 
+
+const cargarCitas = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/cita/getCitas');
+    citas.value = res.data;
+    console.log('Citas recibidas:', citas.value);
+  } catch (e) {
+    console.error('Error al cargar citas:', e);
+  }
+};
+
+
 onMounted(async () => {
-    rol.value = localStorage.getItem('rol')
-    idPaciente.value =  Number(localStorage.getItem('idPaciente'))
-    try {
-        const res = await axios.get('http://localhost:8080/api/cita/getCitas')
-        citas.value = res.data
-        console.log('Citas recibidas:', citas.value)
-        } catch (e) {
-        console.error('Error al cargar citas:', e)
+  rol.value = localStorage.getItem('rol');
+  idPaciente.value = Number(localStorage.getItem('idPaciente'));
+  await cargarCitas();
+});
+
+async function cancelarCita(cita) {
+  try {
+    const res = await fetch(`http://localhost:8080/api/cita/eliminarCita/${cita.idCita}`, {
+      method: 'PUT'
+    });
+    if (!res.ok) {
+      throw new Error('No se pudo cancelar la cita');
     }
-})
+    // cita.eliminada = true;
+     await cargarCitas();
+  } catch (e) {
+    alert('Error al cancelar la cita');
+    console.error(e);
+  }
+}
+
 
 // Filtro citas por médico
 const citasFiltradas = computed(() =>
     citas.value.filter(cita => {
-        return cita.paciente && cita.paciente.id === idPaciente.value
+        return cita.paciente && cita.paciente.id === idPaciente.value &&
+        cita.eliminada === false
     })
 )
 </script>   

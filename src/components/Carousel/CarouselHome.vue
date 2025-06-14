@@ -1,81 +1,61 @@
 <template>
   <v-carousel
+    v-model="slideActual"
     hide-delimiters
     cycle
-    interval="9000"
+    interval="8000"
     :show-arrows="false"
-    height="500px"
+    height="650px"
   >
-    <!-- Slide con video -->
+    <!-- Slide 0: Video -->
     <v-carousel-item>
-      <v-responsive>
-        <video autoplay muted loop width="100%">
+      <v-responsive class="fill-height">
+        <video
+          ref="videoRef"
+          autoplay
+          muted
+          loop
+          playsinline
+          class="w-100 h-100"
+          style="object-fit: cover;"
+        >
           <source src="/images/doctor3.mp4" type="video/mp4" />
           Tu navegador no soporta el elemento de video.
         </video>
       </v-responsive>
     </v-carousel-item>
 
-    <!-- Slide con imagen 1 -->
+    <!-- Slide 1 -->
     <v-carousel-item>
       <v-img
         src="/images/doctor1.jpg"
-        class="h-100"
+        class="fill-height"
         cover
-        style="object-fit: contain;"
-      >
-        <template #default>
-          <v-sheet
-            color="rgba(236,236,236,0.6)"
-            class="d-flex pa-4 justify-center align-center"
-            height="80"
-            position="absolute"
-            style="bottom: 0; width: 100%;"
-            elevation="0"
-          >
-            <span style="font-size:1.5rem; font-family: 'Arial', cursive;">
-              Reserva. Revisa. Evoluciona. Bienvenido a Umbrella.
-            </span>
-          </v-sheet>
-        </template>
-      </v-img>
+      />
     </v-carousel-item>
 
-    <!-- Slide con imagen 2 -->
+    <!-- Slide 2 -->
     <v-carousel-item>
       <v-img
         src="/images/doctor2.jpg"
-        class="h-100"
+        class="fill-height"
         cover
-        style="object-fit: contain;"
-      >
-        <template #default>
-          <v-sheet
-            color="rgba(236,236,236,0.6)"
-            class="d-flex pa-4 justify-center align-center"
-            height="80"
-            position="absolute"
-            style="bottom: 0; width: 100%;"
-            elevation="0"
-          >
-            <span style="font-size:1.5rem; font-family: 'Arial', cursive;">
-              Reserva. Revisa. Evoluciona. Bienvenido a Umbrella.
-            </span>
-          </v-sheet>
-        </template>
-      </v-img>
+      />
     </v-carousel-item>
   </v-carousel>
 </template>
 
-
-
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
-const items = ref([
-    { src: '/images/doctor1.jpg'},
-    { src: '/images/doctor2.jpg'},
-    { src: '/images/doctor3.jpg'},
-])
+const slideActual = ref(0)
+const videoRef = ref(null)
+
+// Cada vez que cambia el slide, revisamos si estamos en el video
+watch(slideActual, (nuevoValor) => {
+  if (nuevoValor === 0 && videoRef.value) {
+    videoRef.value.currentTime = 0
+    videoRef.value.play()
+  }
+})
 </script>

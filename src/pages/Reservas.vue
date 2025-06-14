@@ -1,11 +1,7 @@
 <template>
   <v-app>
-    <HeaderPatient v-if="rol === 'paciente'" />
-    <HeaderMedico v-else-if="rol === 'medico'" />
-    <HeaderQuimico v-else-if="rol === 'quimico'" />
-    <HeaderUnlogged v-else />
     <!-- Esto se debe de poder refactorizar, pero lo hare mas tarde-->
-    <v-container max-width="500px" class="mt-14">
+    <v-container max-width="500px" style="margin-top: 100px;">
       <h2 class="text-h4 mb-6">Reserva tu hora médica</h2>
       <v-form @submit.prevent="siguientePaso">
         <!-- Resumen dinámico -->
@@ -90,11 +86,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
-
-import HeaderPatient from '@/components/header/HeaderPatient.vue'
-import HeaderMedico from '@/components/header/HeaderMedico.vue'
-import HeaderQuimico from '@/components/header/HeaderQuimico.vue'
-import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
 
 const rol = ref(null)
 

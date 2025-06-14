@@ -1,9 +1,5 @@
 <template>
   <v-app style="background-color: #fffdfc;">
-    <HeaderPatient v-if="rol === 'paciente'" />
-    <HeaderMedico v-else-if="rol === 'medico'" />
-    <HeaderQuimico v-else-if="rol === 'quimico'" />
-    <HeaderUnlogged v-else />
     <v-container>
       <v-row justify="center" align="center" style="min-height: 80vh;">
         <v-col cols="12" md="8">
@@ -45,10 +41,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import HeaderPatient from '@/components/header/HeaderPatient.vue'
-import HeaderMedico from '@/components/header/HeaderMedico.vue'
-import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
-import HeaderQuimico from '@/components/header/HeaderQuimico.vue'
 
 const rol = ref(null)
 
@@ -60,14 +52,14 @@ const examenes = ref([
   {
     id: 1,
     nombre: 'Hemograma',
-    fecha: '2024-05-10',
+    fecha: '2025-05-10',
     sintomas: ['Fiebre', 'Cansancio'],
     medicamentos: ['Paracetamol', 'Ibuprofeno']
   },
   {
     id: 2,
     nombre: 'Radiografía de Tórax',
-    fecha: '2024-04-22',
+    fecha: '2025-04-22',
     sintomas: ['Dolor de pecho'],
     medicamentos: ['Ninguno']
   }

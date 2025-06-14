@@ -1,10 +1,5 @@
 <template>
     <v-app>
-        <HeaderPatient v-if="rol === 'paciente'" />
-        <HeaderMedico v-if="rol === 'medico'" />
-        <HeaderUnlogged v-if="!rol" />
-        <HeaderQuimico v-if="rol === 'quimico'" />
-
         <v-container class="mt-16">
         <v-row justify="center">
             <v-col cols="12" md="8">
@@ -42,10 +37,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import HeaderPatient from '@/components/header/HeaderPatient.vue'
-import HeaderMedico from '@/components/header/HeaderMedico.vue'
-import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
-import HeaderQuimico from '@/components/header/HeaderQuimico.vue'
 import axios from 'axios'
 
 const rol = ref(null)

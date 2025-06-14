@@ -1,9 +1,5 @@
 <template>
   <v-app>
-    <HeaderPatient v-if="rol === 'paciente'" />
-    <HeaderMedico v-else-if="rol === 'medico'" />
-    <HeaderQuimico v-else-if="rol === 'quimico'" />
-    <HeaderUnlogged v-else />
     <v-container max-width="600px" class="mt-16">
       <h2 class="text-h4 mb-6">Entregar Receta</h2>
       <v-text-field
@@ -62,10 +58,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import HeaderPatient from '@/components/header/HeaderPatient.vue'
-import HeaderMedico from '@/components/header/HeaderMedico.vue'
-import HeaderUnlogged from '@/components/header/HeaderUnlogged.vue'
-import HeaderQuimico from '@/components/header/HeaderQuimico.vue'
 
 const rol = ref(null)
 

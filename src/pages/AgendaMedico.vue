@@ -6,31 +6,36 @@
         <HeaderQuimico v-if="rol === 'quimico'" />
 
         <v-container class="mt-16">
-            <v-row justify="center">
-                <v-col cols="12" md="8">
+        <v-row justify="center">
+            <v-col cols="12" md="8">
+            <v-card>
+                <v-card-title class="text-h5">Agenda de Citas</v-card-title>
+                <v-card-text>
+                <v-alert v-if="citasFiltradas.length === 0" type="info">
+                    No hay citas para mostrar.
+                </v-alert>
+                <v-row v-else>
+                    <v-col
+                    v-for="cita in citasFiltradas"
+                    :key="cita.id"
+                    cols="12"
+                    class="mb-4"
+                    >
                     <v-card>
-                        <v-card-title class="text-h5">Agenda de Citas</v-card-title>
+                        <v-card-title>
+                        Paciente: {{ cita.paciente?.nombre || 'Desconocido' }}
+                        </v-card-title>
                         <v-card-text>
-                            <v-alert v-if="citasFiltradas.length === 0" type="info">
-                                No hay citas para mostrar.
-                            </v-alert>
-                            <v-list v-else>
-                                <v-list-item
-                                    v-for="cita in citasFiltradas"
-                                    :key="cita.id"
-                                >
-                                        <v-list-item-title>
-                                            Paciente: {{ cita.paciente?.nombre || 'Desconocido' }}
-                                        </v-list-item-title>
-                                        <v-list-item-subtitle>
-                                            Fecha: {{ cita.fechaCita }} - Hora: {{ cita.horaCita }}
-                                        </v-list-item-subtitle>
-                                </v-list-item>
-                            </v-list>
+                        Fecha: {{ cita.fechaCita }}<br>
+                        Hora: {{ cita.horaCita }}
                         </v-card-text>
                     </v-card>
-                </v-col>
-            </v-row>
+                    </v-col>
+                </v-row>
+                </v-card-text>
+            </v-card>
+            </v-col>
+        </v-row>
         </v-container>
     </v-app>
 </template>

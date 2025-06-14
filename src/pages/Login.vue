@@ -80,6 +80,10 @@ function login() {
           localStorage.setItem('idMedico', data.id);
           const idMedico = Number(localStorage.getItem('idMedico'));
         }
+        if (userRol === 'paciente' && data.id) {
+          localStorage.setItem('idPaciente', data.id);
+          const idPaciente = Number(localStorage.getItem('idPaciente'));
+        }
         router.push({ path: '/' });
       } else {
         alert("Correo o contraseña incorrectos");

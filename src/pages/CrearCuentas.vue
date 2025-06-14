@@ -43,6 +43,14 @@
             :rules="[v => !!v || 'El rol es obligatorio']"
             required
             ></v-select>
+            <v-text-field
+              v-if="rol === 'medico'"
+              v-model="especialidad"
+              label="Especialidad"
+              :rules="[v => !!v || 'La especialidad es obligatoria']"
+              required
+              class="mt-2"
+            />
             <v-btn color="primary" class="mt-4" block type="submit">
               Crear Cuenta
             </v-btn>
@@ -63,6 +71,7 @@ const form = ref(null)
 const formValido = ref(false)
 const correoNombre = ref('')
 const nombre = ref('')
+const especialidad = ref('')
 const rut = ref('')
 const password = ref('')
 const rol = ref('')
@@ -89,6 +98,7 @@ async function crearCuenta() {
         correo: correoPreview.value,
         nombre: nombre.value,
         rut: rut.value,
+        especialidad: especialidad.value || '', // Solo enviar especialidad si es medico
         password: password.value,
         rol: rol.value
     }
@@ -114,7 +124,6 @@ async function crearCuenta() {
         url = 'http://localhost:8080/api/enfermero/crearEnfermero'
     }
     else {
-        mensaje.value = 'Rol no soportado'
         mensajeTipo.value = 'error'
         return
     }

@@ -1,0 +1,153 @@
+<template>
+  <v-dialog :model-value="modelValue" @update:model-value="val => $emit('update:modelValue', val)" max-width="700">
+    <v-card v-if="cita">
+      <v-card-title>Emitir Receta</v-card-title>
+      <v-card-text>
+        <v-form>
+          <div class="mb-4">
+            <div><strong>Paciente:</strong> {{ cita.paciente?.nombre }}</div>
+            <div><strong>RUT:</strong> {{ cita.paciente?.rut }}</div>
+          </div>
+
+          <v-textarea
+            v-model="diagnostico"
+            label="Diagnóstico"
+            rows="2"
+          />
+
+          <v-textarea
+            v-model="observaciones"
+            label="Observaciones"
+            rows="3"
+          />
+
+          <v-textarea
+            v-model="examenIndicado"
+            label="Examen indicado"
+            rows="2"
+          />
+
+<v-menu
+  v-model="menuFecha"
+  :close-on-content-click="false"
+  transition="scale-transition"
+  offset-y
+>
+  <template #activator="{ props }">
+    <v-text-field
+      v-model="vigencia"
+      label="Vigencia"
+      prepend-icon="mdi-calendar"
+      readonly
+      v-bind="props"
+    />
+  </template>
+
+  <v-date-picker
+    v-model="vigencia"
+    @update:model-value="menuFecha = false"
+  />
+</v-menu>
+          <v-divider class="my-4" />
+          <h4>Medicamentos</h4>
+
+          <div v-for="(med, index) in medicamentosList" :key="index" class="d-flex align-center mb-2">
+            <v-select
+              :items="listaMedicamentos"
+              item-title="nombreComercial"
+              item-value="id"
+              v-model="med.idMedicamento"
+              label="Medicamento"
+              class="me-4"
+              style="flex: 1"
+            />
+            <v-text-field
+              v-model="cantidades[index]"
+              label="Cantidad"
+              type="number"
+              style="width: 100px"
+            />
+            <v-btn icon @click="eliminarMedicamento(index)">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </div>
+          <v-btn color="green" @click="agregarMedicamento">Agregar medicamento</v-btn>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-btn color="primary" @click="emitirReceta">Emitir Receta</v-btn>
+        <v-btn color="grey" @click="$emit('update:modelValue', false)">Cancelar</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
+const props = defineProps({
+  modelValue: Boolean,
+  cita: Object
+})
+const emit = defineEmits(['update:modelValue'])
+
+const observaciones = ref('')
+const diagnostico = ref('')
+const examen = ref('')
+const vigencia = ref('')
+const menuFecha = ref(false)
+const fechaEmision = ref(new Date().toISOString().substr(0, 10)) // yyyy-mm-dd
+const examenIndicado = ref('')
+const medicamentosSeleccionados = ref([])
+
+
+const medicamentosList = ref([{ idMedicamento: null }])
+const cantidades = ref([1])
+const listaMedicamentos = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/medicamento/getMedicamentos') // Asegúrate de tener este endpoint
+    listaMedicamentos.value = res.data
+  } catch (e) {
+    console.error('Error cargando medicamentos:', e)
+  }
+})
+
+function agregarMedicamento() {
+  medicamentosList.value.push({ idMedicamento: null })
+  cantidades.value.push(1)
+}
+
+function eliminarMedicamento(index) {
+  medicamentosList.value.splice(index, 1)
+  cantidades.value.splice(index, 1)
+}
+
+async function emitirReceta() {
+  const receta = {
+    fechaEmision: new Date(fechaEmision.value).toISOString(),
+    vigencia: new Date(vigencia.value).toISOString(),
+    observaciones: observaciones.value,
+    diagnostico: diagnostico.value,
+    examenIndicado: examenIndicado.value,
+    estado: true,
+    medico: { id: localStorage.getItem('idMedico') },
+    paciente: { id: props.cita.paciente.id },
+    medicamentosList: medicamentosSeleccionados.value.map(m => ({ idMedicamento: m.idMedicamento })),
+    cantidadMedicamentos: medicamentosSeleccionados.value.map(m => parseInt(cantidades.value[m.idMedicamento] || 1))
+  }
+
+  console.log('Receta a emitir:', receta)
+  try {
+    await axios.post('http://localhost:8080/api/receta/crearReceta', receta)
+    alert('Receta emitida con éxito')
+    emit('update:modelValue', false)
+  } catch (error) {
+    console.error('Error al emitir receta:', error)
+    alert('Ocurrió un error al emitir la receta.')
+  }
+}
+</script>

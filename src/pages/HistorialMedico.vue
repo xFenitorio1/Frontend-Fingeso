@@ -43,25 +43,33 @@
 import { ref, onMounted } from 'vue'
 
 const rol = ref(null)
+const examenes = ref([])
 
-onMounted(() => {
+onMounted(async () => {
   rol.value = localStorage.getItem('rol')
-})
 
-const examenes = ref([
-  {
-    id: 1,
-    nombre: 'Hemograma',
-    fecha: '2025-05-10',
-    sintomas: ['Fiebre', 'Cansancio'],
-    medicamentos: ['Paracetamol', 'Ibuprofeno']
-  },
-  {
-    id: 2,
-    nombre: 'Radiografía de Tórax',
-    fecha: '2025-04-22',
-    sintomas: ['Dolor de pecho'],
-    medicamentos: ['Ninguno']
+  const idPaciente = localStorage.getItem('idPaciente')
+  if (!idPaciente) return alert('ID del paciente no encontrado')
+
+  try {
+    const res = await fetch(`http://localhost:8080/api/paciente/${idPaciente}/historial`)
+    if (!res.ok) throw new Error('Error al obtener historial médico')
+
+    const data = await res.json()
+
+    if (data.examenes) {
+      examenes.value = data.examenes.map(e => ({
+        id: e.id,
+        nombre: e.tipo,
+        fecha: e.fechaExamen.split('T')[0],
+        sintomas: e.sintomas,
+        medicamentos: e.medicamentos
+      }))
+    }
+
+  } catch (error) {
+    console.error('Error:', error)
+    alert('No se pudo cargar el historial médico')
   }
-])
+})
 </script>

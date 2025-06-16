@@ -77,6 +77,10 @@ function login() {
           localStorage.setItem('idPaciente', data.id);
           const idPaciente = Number(localStorage.getItem('idPaciente'));
         }
+        if (userRol === 'enfermero' && data.id) {
+          localStorage.setItem('idEnfermero', data.id);
+          const idEnfermero = Number(localStorage.getItem('idEnfermero'));
+        }
         window.location.href = '/';
       } else {
         alert("Correo o contraseña incorrectos");

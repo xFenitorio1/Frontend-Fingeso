@@ -125,6 +125,7 @@ const fecha = ref('')
 const medico = ref(null)
 const hora = ref('')
 const mensaje = ref('')
+const reservasLocales = ref({})
 
 const medicos = ref([])
 const especialidades = ref([])
@@ -175,9 +176,14 @@ const horasPorMedico = {
 }
 
 const horasDisponibles = computed(() => {
-  if (!medico.value) return []
+  if (!medico.value || !fecha.value) return []
   const idMedico = Number(medico.value)
-  return horasPorMedico[idMedico] || []
+  const disponibles = horasPorMedico[idMedico] || []
+
+  const clave = `${medico.value}-${fecha.value}`
+  const ocupadas = reservasLocales.value[clave] || []
+
+  return disponibles.filter(hora => !ocupadas.includes(hora))
 })
 
 // Funciones
@@ -233,6 +239,16 @@ async function siguientePaso() {
   }
 }
 
+function resetearFormulario() {
+  rut.value = ''
+  correo.value = ''
+  sucursal.value = ''
+  especialidad.value = ''
+  fecha.value = ''
+  medico.value = null
+  hora.value = ''
+}
+
 
 async function enviarCita() {
   try {
@@ -248,7 +264,7 @@ async function enviarCita() {
     const respuestaMedico = await axios.get(`http://localhost:8080/api/medico/getMedico/${medico.value}`)
     const medicoCompleto = respuestaMedico.data
 
-    // Armar el objeto completo con los datos completos de paciente y médico
+    // Armar el objeto de la nueva cita
     const nuevaCita = {
       fechaCita: fecha.value,
       sucursal: sucursal.value,
@@ -260,12 +276,33 @@ async function enviarCita() {
     console.log('Datos enviados al backend (con objetos completos):', nuevaCita)
     await axios.post('http://localhost:8080/api/cita/crearCita', nuevaCita)
 
+
+    const clave = `${medico.value}-${fecha.value}`
+    if (!reservasLocales.value[clave]) {
+      reservasLocales.value[clave] = []
+    }
+    reservasLocales.value[clave].push(hora.value)
+
+    // Enviar correo
+    const emailParams = new URLSearchParams()
+    emailParams.append("to", correo.value)
+    emailParams.append("subject", "Confirmación de Cita Médica")
+    emailParams.append("fecha", fecha.value)
+    emailParams.append("hora", hora.value)
+    emailParams.append("servicio", especialidad.value)
+    emailParams.append("nombre", medicoCompleto.nombre)
+
+    await axios.post(`http://localhost:8080/api/email/sentEmail?${emailParams.toString()}`)
+
     mensaje.value = `¡Reserva realizada para RUT ${rut.value} en ${sucursal.value}, especialidad ${especialidad.value}, el ${fecha.value} con ${medicoNombre.value} a las ${hora.value}!`
 
   } catch (error) {
-    mensaje.value = 'Error al registrar la cita. Intenta nuevamente.'
-    console.error(error)
+    mensaje.value = 'Error al registrar la cita o enviar el correo. Intenta nuevamente.'
     console.error('Error en enviarCita:', error.response?.data || error.message)
   }
+
+  resetearFormulario()
+  paso.value = 1
+
 }
 </script>

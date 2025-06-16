@@ -28,7 +28,7 @@
             :key="med.id"
           >
             <v-card class="mb-4">
-              <v-card-title>{{ med.nombre }}</v-card-title>
+              <v-card-title>{{ med.nombreComercial }}</v-card-title>
               <v-card-text>
                 {{ med.descripcion }}
               </v-card-text>
@@ -50,32 +50,31 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-const rol = ref(null)
-
-onMounted(() => {
-  rol.value = localStorage.getItem('rol')
-})
-
 const search = ref('')
 const cargado = ref(false)
+const medicamentos = ref([])
 
-onMounted(() => {
-  setTimeout(() => {
-    cargado.value = true
-  }, 100) 
+onMounted(async () => {
+
+  try {
+    const response = await fetch('http://localhost:8080/api/medicamento/getMedicamentos');
+    if (!response.ok) {
+      throw new Error(`Error al obtener medicamentos: ${response.status}`);
+    }
+    medicamentos.value = await response.json();
+
+  } catch (error) {
+    console.error('Error al cargar medicamentos:', error.message);
+  } finally {
+  
+    cargado.value = true;
+  }
 })
-
-const medicamentos = ref([
-  { id: 1, nombre: 'Paracetamol', descripcion: 'Analgésico y antipirético.' },
-  { id: 2, nombre: 'Ibuprofeno', descripcion: 'Antiinflamatorio no esteroideo.' },
-  { id: 3, nombre: 'Amoxicilina', descripcion: 'Antibiótico de amplio espectro.' },
-  { id: 4, nombre: 'Loratadina', descripcion: 'Antihistamínico para alergias.' },
-  { id: 5, nombre: 'Omeprazol', descripcion: 'Inhibidor de la bomba de protones.' },
-])
 
 const filteredMedicamentos = computed(() =>
   medicamentos.value.filter(med =>
-    med.nombre.toLowerCase().includes(search.value.toLowerCase())
+    med?.nombreComercial?.toLowerCase().includes(search.value.toLowerCase())
   )
 )
 </script>
+

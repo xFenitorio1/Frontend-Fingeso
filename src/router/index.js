@@ -9,6 +9,7 @@ import EntregarReceta from '../pages/EntregarReceta.vue'
 import Agenda from '../pages/AgendaMedico.vue'
 import CrearCuentas from '@/pages/CrearCuentas.vue'
 import AgendaPaciente from '@/pages/AgendaPaciente.vue'
+import EmitirExamen from '@/pages/EmitirExamen.vue'
 
 
 const routes = [
@@ -22,6 +23,7 @@ const routes = [
   { path: '/Agenda', component: Agenda },
   { path: '/CrearCuentas', component: CrearCuentas },
   { path: '/AgendaPaciente', component: AgendaPaciente },
+  { path: '/EmitirExamen', component: EmitirExamen },
 ]
 
 const router = createRouter({

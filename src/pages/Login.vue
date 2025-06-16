@@ -77,7 +77,7 @@ function login() {
           localStorage.setItem('idPaciente', data.id);
           const idPaciente = Number(localStorage.getItem('idPaciente'));
         }
-        router.push({ path: '/' });
+        window.location.href = '/';
       } else {
         alert("Correo o contraseña incorrectos");
       }

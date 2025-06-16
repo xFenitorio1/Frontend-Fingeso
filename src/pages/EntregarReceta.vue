@@ -31,7 +31,7 @@
                   {{ med.nombreComercial }} - Cantidad: {{ receta.cantidadMedicamentos[index] }}
                 </li>
               </ul>
-              <div><strong>Fecha de vigencia:</strong> {{ receta.vigencia }}</div>
+              <div><strong>Fecha de vigencia:</strong> {{ formatearFecha(receta.vigencia) }}</div>
             </v-card-text>
             <v-card-actions>
               <v-btn color="primary" @click="abrirDialogo(receta)" variant="flat">
@@ -76,6 +76,14 @@ function formatearRutBusqueda() {
   let dv = valor.slice(-1);
   cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   rutBusqueda.value = cuerpo ? `${cuerpo}-${dv}` : dv;
+}
+
+function formatearFecha(fechaISO) {
+  const fecha = new Date(fechaISO);
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // +1 porque enero es 0
+  const anio = fecha.getFullYear();
+  return `${dia}/${mes}/${anio}`;
 }
 
 // 👇 Se ejecuta automáticamente cuando el rut cambia

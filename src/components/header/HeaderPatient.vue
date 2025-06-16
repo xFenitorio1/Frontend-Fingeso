@@ -13,8 +13,8 @@
             Clínica Umbrella
         </v-app-bar-title>
 
-        <v-btn>Ver Historial Clínico</v-btn>
-        <v-btn>Ver citas</v-btn>
+        <v-btn to="/HistorialMedico">Ver Historial Clínico</v-btn>
+        <v-btn to="/AgendaPaciente">Ver citas</v-btn>
         
         <v-btn color="white" variant="flat" class="text-primary" to="/Reservas">
             Reserva tu Hora

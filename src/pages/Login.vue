@@ -22,6 +22,17 @@
                                 <v-btn color="primary" class="mt-4" block type="submit">
                                     Ingresar
                                 </v-btn>
+                                <div class="text-center mt-4">
+                                ¿No estás registrado?
+                                <v-btn
+                                  color="primary"
+                                  variant="text"
+                                  class="ml-2"
+                                  @click="router.push('/Registro')"
+                                >
+                                  ¡Regístrate Aquí!
+                                </v-btn>
+                              </div>
                             </v-form>
                         </v-card-text>
                     </v-card>

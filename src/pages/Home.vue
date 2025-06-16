@@ -66,7 +66,7 @@ const especialidades = [
     nombre: 'Cardiología', icono: 'mdi-heart-pulse'
   },
   {
-    nombre: 'Dermatología', icono: 'mdi-face-woman-outline'
+    nombre: 'Dermatología', icono: 'mdi-lotion-outline'
   },
   {
     nombre: 'Pediatría', icono: 'mdi-baby-face-outline'
@@ -75,7 +75,7 @@ const especialidades = [
     nombre: 'Traumatología', icono: 'mdi-bone'
   },
   {
-    nombre: 'Ginecología', icono: 'mdi-baby-bottle-outline'
+    nombre: 'Ginecología', icono: 'mdi-face-woman-outline'
   },
   {
     nombre: 'Odontología', icono: 'mdi-tooth-outline'

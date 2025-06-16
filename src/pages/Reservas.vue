@@ -7,6 +7,7 @@
         <!-- Resumen dinámico -->
         <div class="mb-2" v-if="paso > 1">
           <div v-if="rut"><strong>RUT:</strong> {{ rut }}</div>
+          <div v-if="correo"><strong>Correo:</strong> {{ correo }}</div>
           <div v-if="paso > 2 && sucursal"><strong>Sucursal:</strong> {{ sucursal }}</div>
           <div v-if="paso > 3 && especialidad"><strong>Especialidad:</strong> {{ especialidad }}</div>
           <div v-if="paso > 4 && fecha"><strong>Fecha:</strong> {{ fecha }}</div>
@@ -14,13 +15,25 @@
         </div>
 
         <!-- Paso 1: RUT -->
-        <v-text-field
-          v-if="paso === 1"
-          v-model="rut"
-          label="RUT Chileno"
-          :rules="[validarRut]"
-          required
-        ></v-text-field>
+        <div v-if="paso === 1">
+          <v-text-field
+            v-model="rut"
+            label="RUT Chileno"
+            :rules="[validarRut]"
+            required
+            class="mb-4"
+          ></v-text-field>
+          <v-text-field
+            v-model="correo"
+            label="Correo electrónico"
+            type="email"
+            :rules="[
+              v => !!v || 'El correo es requerido',
+              v => /.+@.+\..+/.test(v) || 'Correo inválido'
+            ]"
+            required
+          ></v-text-field>
+        </div>
 
         <!-- Paso 2: Sucursal -->
         <v-select
@@ -28,6 +41,7 @@
           v-model="sucursal"
           :items="sucursales"
           label="Sucursal"
+          :rules="[v => !!v || 'Selecciona una sucursal']"
           required
         ></v-select>
 
@@ -37,6 +51,7 @@
           v-model="especialidad"
           :items="especialidades"
           label="Especialidad"
+          :rules="[v => !!v || 'Selecciona una especialidad']"
           required
         ></v-select>
 
@@ -48,6 +63,7 @@
           type="date"
           :min="fechaMin"
           :max="fechaMax"
+          :rules="[v => !!v || 'Selecciona una fecha válida']"
           required
         ></v-text-field>
 
@@ -59,6 +75,7 @@
           item-title="nombre"
           item-value="idUsuario"
           label="Médico disponible"
+          :rules="[v => !!v || 'Selecciona un médico']"
           required
         ></v-select>
 
@@ -68,12 +85,22 @@
           v-model="hora"
           :items="horasDisponibles"
           label="Hora disponible"
+          :rules="[v => !!v || 'Selecciona una hora']"
           required
         ></v-select>
 
-        <v-btn color="primary" class="mt-4" block type="submit">
-          {{ paso < 6 ? 'Siguiente' : 'Reservar' }}
-        </v-btn>
+      <v-row class="mt-4" dense>
+        <v-col cols="6" v-if="paso > 1">
+          <v-btn color="secondary" block @click="paso--">
+            Volver
+          </v-btn>
+        </v-col>
+        <v-col :cols="paso > 1 ? 6 : 12">
+          <v-btn color="primary" block type="submit">
+            {{ paso < 6 ? 'Siguiente' : 'Reservar' }}
+          </v-btn>
+        </v-col>
+      </v-row>
       </v-form>
 
       <v-alert v-if="mensaje" type="success" class="mt-4" border="start" prominent>
@@ -87,44 +114,41 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 
-const rol = ref(null)
-
-onMounted(() => {
-  rol.value = localStorage.getItem('rol')
-})
-
+// Estado
+const formulario = ref(null)
 const paso = ref(1)
 const rut = ref('')
+const correo = ref('')
 const sucursal = ref('')
 const especialidad = ref('')
 const fecha = ref('')
 const medico = ref(null)
 const hora = ref('')
 const mensaje = ref('')
+
 const medicos = ref([])
 const especialidades = ref([])
+const sucursales = ['Sucursal Centro', 'Sucursal Norte', 'Sucursal Sur']
 
+// Fechas límites
 const hoy = new Date()
 const fechaMin = hoy.toISOString().split('T')[0]
-
 const tresMesesDespues = new Date()
 tresMesesDespues.setMonth(tresMesesDespues.getMonth() + 3)
 const fechaMax = tresMesesDespues.toISOString().split('T')[0]
 
+// Obtener médicos al montar
 onMounted(async () => {
   try {
     const res = await axios.get('http://localhost:8080/api/medico/getMedicos')
     medicos.value = res.data
-
-    console.log('Médicos cargados:', medicos.value)
     especialidades.value = [...new Set(medicos.value.map(m => m.especialidad))]
   } catch (e) {
     console.error('Error al cargar médicos:', e)
   }
 })
 
-const sucursales = ['Sucursal Centro', 'Sucursal Norte', 'Sucursal Sur']
-
+// Computed
 const medicosDisponibles = computed(() =>
   medicos.value
     .filter(m => m.especialidad === especialidad.value)
@@ -140,9 +164,6 @@ const medicoNombre = computed(() => {
 })
 
 
-watch(medico, (nuevo) => {
-  console.log('Medico seleccionado:', nuevo, typeof nuevo)
-})
 
 // Ajustar horas disponibles según médico seleccionado (ejemplo)
 const horasPorMedico = {
@@ -159,6 +180,7 @@ const horasDisponibles = computed(() => {
   return horasPorMedico[idMedico] || []
 })
 
+// Funciones
 function formatearRut(valor) {
   valor = valor.replace(/[^\dkK]/g, '')
   let cuerpo = valor.slice(0, -1)
@@ -172,13 +194,45 @@ function validarRut(rut) {
   return (limpio.length >= 8 && limpio.length <= 9) || 'El RUT debe tener entre 8 y 9 dígitos'
 }
 
+watch(rut, (nuevo) => {
+  const limpio = nuevo.replace(/[^\dkK]/g, '')
+  if (nuevo && nuevo !== formatearRut(limpio)) {
+    rut.value = formatearRut(limpio)
+  }
+})
+
 async function siguientePaso() {
+  let valido = false
+
+  if (paso.value === 1) {
+    valido = !!rut.value && validarRut(rut.value) === true &&
+             !!correo.value && /.+@.+\..+/.test(correo.value)
+  } else if (paso.value === 2) {
+    valido = !!sucursal.value
+  } else if (paso.value === 3) {
+    valido = !!especialidad.value
+  } else if (paso.value === 4) {
+    valido = !!fecha.value
+  } else if (paso.value === 5) {
+    valido = !!medico.value
+  } else if (paso.value === 6) {
+    valido = !!hora.value
+  }
+
+  if (!valido) {
+    mensaje.value = 'Por favor completa correctamente este paso antes de continuar.'
+    return
+  }
+
+  mensaje.value = ''
+
   if (paso.value < 6) {
     paso.value++
   } else {
     await enviarCita()
   }
 }
+
 
 async function enviarCita() {
   try {
@@ -204,7 +258,6 @@ async function enviarCita() {
     }
 
     console.log('Datos enviados al backend (con objetos completos):', nuevaCita)
-
     await axios.post('http://localhost:8080/api/cita/crearCita', nuevaCita)
 
     mensaje.value = `¡Reserva realizada para RUT ${rut.value} en ${sucursal.value}, especialidad ${especialidad.value}, el ${fecha.value} con ${medicoNombre.value} a las ${hora.value}!`
@@ -215,15 +268,4 @@ async function enviarCita() {
     console.error('Error en enviarCita:', error.response?.data || error.message)
   }
 }
-
-watch(rut, (nuevo) => {
-  const limpio = nuevo.replace(/[^\dkK]/g, '')
-  if (nuevo && nuevo !== formatearRut(limpio)) {
-    rut.value = formatearRut(limpio)
-  }
-})
-
-watch(medicosDisponibles, (nuevo) => {
-  console.log('medicosDisponibles:', nuevo)
-})
 </script>

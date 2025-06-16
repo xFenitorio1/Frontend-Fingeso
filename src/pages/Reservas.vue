@@ -252,19 +252,42 @@ function resetearFormulario() {
 
 async function enviarCita() {
   try {
-    // Obtener el pacienteId por RUT
-    const respuestaPacienteId = await axios.get(`http://localhost:8080/api/paciente/getIdByRut/${rut.value}`)
-    const pacienteId = respuestaPacienteId.data
+    let pacienteId = null
+    let pacienteCompleto = null
 
-    // Obtener todos los datos del paciente
-    const respuestaPacienteCompleto = await axios.get(`http://localhost:8080/api/paciente/getPaciente/${pacienteId}`)
-    const pacienteCompleto = respuestaPacienteCompleto.data
+    // Primero intenta obtener el paciente por RUT
+    try {
+      const respuestaPacienteId = await axios.get(`http://localhost:8080/api/paciente/getIdByRut/${rut.value}`)
+      pacienteId = respuestaPacienteId.data
 
-    // Obtener todos los datos del médico
+      const respuestaPacienteCompleto = await axios.get(`http://localhost:8080/api/paciente/getPaciente/${pacienteId}`)
+      pacienteCompleto = respuestaPacienteCompleto.data
+
+    } catch (error) {
+      if (error.response && error.response.status === 500) {
+        // Si no existe, lo creamos
+        const nuevoPaciente = {
+          rut: rut.value,
+          correo: correo.value,
+          rol : 'paciente'
+        }
+        await axios.post(`http://localhost:8080/api/paciente/crearPaciente`, nuevoPaciente)
+
+        // Luego lo volvemos a buscar
+        const respuestaPacienteId = await axios.get(`http://localhost:8080/api/paciente/getIdByRut/${rut.value}`)
+        pacienteId = respuestaPacienteId.data
+
+        const respuestaPacienteCompleto = await axios.get(`http://localhost:8080/api/paciente/getPaciente/${pacienteId}`)
+        pacienteCompleto = respuestaPacienteCompleto.data
+      } else {
+        throw error // si es otro error, lo lanzamos
+      }
+    }
+
+    // Obtener datos del médico
     const respuestaMedico = await axios.get(`http://localhost:8080/api/medico/getMedico/${medico.value}`)
     const medicoCompleto = respuestaMedico.data
 
-    // Armar el objeto de la nueva cita
     const nuevaCita = {
       fechaCita: fecha.value,
       sucursal: sucursal.value,
@@ -273,10 +296,9 @@ async function enviarCita() {
       medico: medicoCompleto
     }
 
-    console.log('Datos enviados al backend (con objetos completos):', nuevaCita)
     await axios.post('http://localhost:8080/api/cita/crearCita', nuevaCita)
 
-
+    // Marcar la hora como ocupada localmente
     const clave = `${medico.value}-${fecha.value}`
     if (!reservasLocales.value[clave]) {
       reservasLocales.value[clave] = []
@@ -303,6 +325,5 @@ async function enviarCita() {
 
   resetearFormulario()
   paso.value = 1
-
 }
 </script>

@@ -12,7 +12,7 @@
         <v-app-bar-title style="font-family:'Comic Sans'">
             Clínica Umbrella
         </v-app-bar-title>
-
+        <v-btn @click="cerrarSesion">Cerrar Sesión</v-btn>
         <v-btn to="/Medicamentos">Medicamentos</v-btn>
         
         <!-- Solo para médicos -->
@@ -23,4 +23,12 @@
 
 <script setup>
 import { ref } from 'vue'
+
+function cerrarSesion() {
+  // Elimina los datos del localStorage
+    localStorage.clear()
+
+  // Redirige a la pagina de inicio
+    window.location.href = '/'
+}
 </script>

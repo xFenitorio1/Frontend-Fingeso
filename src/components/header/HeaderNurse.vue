@@ -13,7 +13,7 @@
             Clínica Umbrella
         </v-app-bar-title>
         
-        <!-- Solo para  -->
+        <v-btn @click="cerrarSesion">Cerrar Sesión</v-btn>
         <v-btn color="white" variant="flat" class="text-primary" to="/EmitirExamen">
             Emitir Examen</v-btn>
     </v-app-bar>
@@ -21,4 +21,12 @@
 
 <script setup>
 import { ref } from 'vue'
+
+function cerrarSesion() {
+  // Elimina los datos del localStorage
+    localStorage.clear()
+
+  // Redirige a la pagina de inicio
+    window.location.href = '/'
+}
 </script>

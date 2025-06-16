@@ -13,6 +13,7 @@
             Clínica Umbrella
         </v-app-bar-title>
 
+        <v-btn @click="cerrarSesion">Cerrar Sesión</v-btn>
         <v-btn to="/HistorialMedico">Ver Historial Clínico</v-btn>
         <v-btn to="/AgendaPaciente">Ver citas</v-btn>
         
@@ -24,4 +25,12 @@
 
 <script setup>
 import { ref } from 'vue'
+
+function cerrarSesion() {
+  // Elimina los datos del localStorage
+    localStorage.clear()
+
+  // Redirige a la pagina de inicio
+    window.location.href = '/'
+}
 </script>

@@ -22,12 +22,16 @@
         >
           <v-card>
             <v-card-title>
-              <strong>Paciente:</strong> {{ receta.nombre_paciente }}
+              <strong>Paciente:</strong> {{ pacienteInfo.nombre }}
             </v-card-title>
             <v-card-text>
-              <div><strong>RUT:</strong> {{ receta.rut }}</div>
-              <div><strong>Medicamento:</strong> {{ receta.medicamento }}</div>
-              <div><strong>Fecha:</strong> {{ receta.fecha }}</div>
+              <div><strong>Medicamentos:</strong></div>
+              <ul>
+                <li v-for="(med, index) in receta.medicamentosList" :key="med.idMedicamento">
+                  {{ med.nombreComercial }} - Cantidad: {{ receta.cantidadMedicamentos[index] }}
+                </li>
+              </ul>
+              <div><strong>Fecha de vigencia:</strong> {{ receta.vigencia }}</div>
             </v-card-text>
             <v-card-actions>
               <v-btn color="primary" @click="abrirDialogo(receta)" variant="flat">
@@ -57,58 +61,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-
-const rol = ref(null)
-
-onMounted(() => {
-  rol.value = localStorage.getItem('rol')
-})
-
-const recetas = ref([
-  {
-    id: 1,
-    rut: '12.345.678-9',
-    nombre_paciente: 'Juan Pérez',
-    medicamento: 'Paracetamol 500mg',
-    fecha: '2024-06-10',
-    es_etiquetado: false
-  },
-  {
-    id: 2,
-    rut: '12.345.678-9',
-    nombre_paciente: 'Juan Pérez',
-    medicamento: 'Ibuprofeno 400mg',
-    fecha: '2024-06-09',
-    es_etiquetado: true
-  },
-  {
-    id: 3,
-    rut: '20.123.456-7',
-    nombre_paciente: 'María López',
-    medicamento: 'Amoxicilina 500mg',
-    fecha: '2024-06-08',
-    es_etiquetado: false
-  },
-    {
-    id: 4,
-    rut: '12.345.678-9',
-    nombre_paciente: 'Juan Pérez',
-    medicamento: 'Ibuprofeno 400mg',
-    fecha: '2024-06-09',
-    es_etiquetado: false
-  },
-    {
-    id: 5,
-    rut: '12.345.678-9',
-    nombre_paciente: 'Juan Pérez',
-    medicamento: 'Ibuprofeno 400mg',
-    fecha: '2024-06-09',
-    es_etiquetado: false
-  },
-])
+import { ref, computed, watch } from 'vue'
+import axios from 'axios'
 
 const rutBusqueda = ref('')
+const recetas = ref([])
+const pacienteInfo = ref({})
 const dialogo = ref(false)
 const recetaSeleccionada = ref(null)
 
@@ -120,23 +78,58 @@ function formatearRutBusqueda() {
   rutBusqueda.value = cuerpo ? `${cuerpo}-${dv}` : dv;
 }
 
+// 👇 Se ejecuta automáticamente cuando el rut cambia
+watch(rutBusqueda, async (nuevoRut) => {
+  if (!nuevoRut || nuevoRut.length < 9) {
+    recetas.value = []
+    return
+  }
+
+  try {
+    // Paso 1: Obtener ID del paciente
+    const respId = await axios.get(`http://localhost:8080/api/paciente/getIdByRut/${nuevoRut}`)
+    const idPaciente = respId.data
+
+    console.log('ID del paciente:', idPaciente)
+
+    // Paso 2: Obtener recetas por RUT
+    const respRecetas = await axios.get(`http://localhost:8080/api/receta/porPacienteRut/${nuevoRut}`)
+    recetas.value = respRecetas.data
+    console.log('Recetas encontradas:', recetas.value)
+
+    // Paso 3: Obtener el nombre del paciente
+    const respPaciente = await axios.get(`http://localhost:8080/api/paciente/getPaciente/${idPaciente}`)
+    pacienteInfo.value = respPaciente.data
+    console.log('Información del paciente:', pacienteInfo.value)
+
+  } catch (error) {
+    console.error('Error al obtener datos:', error)
+    recetas.value = []
+  }
+})
+
 function abrirDialogo(receta) {
   recetaSeleccionada.value = receta
   dialogo.value = true
 }
 
-function confirmarEntrega() {
-  if (recetaSeleccionada.value) {
+async function confirmarEntrega() {
+  if (!recetaSeleccionada.value) return
+
+  try {
+    await axios.put(`http://localhost:8080/api/receta/entregar/${recetaSeleccionada.value.id}`)
+    // Marcar como entregada localmente (para ocultarla de la lista)
     recetaSeleccionada.value.es_etiquetado = true
+  } catch (error) {
+    console.error('Error al entregar receta:', error)
+    alert('Error al marcar la receta como entregada.')
   }
+
   dialogo.value = false
   recetaSeleccionada.value = null
 }
 
 const recetasFiltradas = computed(() => {
-  if (!rutBusqueda.value) return [];
-  return recetas.value.filter(
-    r => r.rut.toLowerCase() === rutBusqueda.value.toLowerCase() && !r.es_etiquetado
-  );
-});
+  return recetas.value.filter(r => !r.es_etiquetado)
+})
 </script>

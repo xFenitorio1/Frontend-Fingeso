@@ -27,27 +27,27 @@
             rows="2"
           />
 
-<v-menu
-  v-model="menuFecha"
-  :close-on-content-click="false"
-  transition="scale-transition"
-  offset-y
->
-  <template #activator="{ props }">
-    <v-text-field
-      v-model="vigencia"
-      label="Vigencia"
-      prepend-icon="mdi-calendar"
-      readonly
-      v-bind="props"
-    />
-  </template>
+          <v-menu
+            v-model="menuFecha"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+          >
+            <template #activator="{ props }">
+              <v-text-field
+                v-model="vigencia"
+                label="Vigencia"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-bind="props"
+              />
+            </template>
 
-  <v-date-picker
-    v-model="vigencia"
-    @update:model-value="menuFecha = false"
-  />
-</v-menu>
+            <v-date-picker
+              v-model="vigencia"
+              @update:model-value="menuFecha = false"
+            />
+          </v-menu>
           <v-divider class="my-4" />
           <h4>Medicamentos</h4>
 
@@ -55,7 +55,7 @@
             <v-select
               :items="listaMedicamentos"
               item-title="nombreComercial"
-              item-value="id"
+              item-value="idMedicamento"
               v-model="med.idMedicamento"
               label="Medicamento"
               class="me-4"
@@ -109,8 +109,9 @@ const listaMedicamentos = ref([])
 
 onMounted(async () => {
   try {
-    const res = await axios.get('http://localhost:8080/api/medicamento/getMedicamentos') // Asegúrate de tener este endpoint
+    const res = await axios.get('http://localhost:8080/api/medicamento/getMedicamentos')
     listaMedicamentos.value = res.data
+    console.log(listaMedicamentos.value)
   } catch (e) {
     console.error('Error cargando medicamentos:', e)
   }
@@ -127,6 +128,8 @@ function eliminarMedicamento(index) {
 }
 
 async function emitirReceta() {
+
+  console.log("cantidades:", cantidades.value);
   const receta = {
     fechaEmision: new Date(fechaEmision.value).toISOString(),
     vigencia: new Date(vigencia.value).toISOString(),
@@ -136,11 +139,12 @@ async function emitirReceta() {
     estado: true,
     medico: { id: localStorage.getItem('idMedico') },
     paciente: { id: props.cita.paciente.id },
-    medicamentosList: medicamentosSeleccionados.value.map(m => ({ idMedicamento: m.idMedicamento })),
-    cantidadMedicamentos: medicamentosSeleccionados.value.map(m => parseInt(cantidades.value[m.idMedicamento] || 1))
+    medicamentosList: medicamentosList.value.map(m => ({ idMedicamento: m.idMedicamento})),
+    cantidadMedicamentos: cantidades.value.map(c => parseInt(c))
   }
 
   console.log('Receta a emitir:', receta)
+
   try {
     await axios.post('http://localhost:8080/api/receta/crearReceta', receta)
     alert('Receta emitida con éxito')
@@ -150,4 +154,5 @@ async function emitirReceta() {
     alert('Ocurrió un error al emitir la receta.')
   }
 }
+
 </script>

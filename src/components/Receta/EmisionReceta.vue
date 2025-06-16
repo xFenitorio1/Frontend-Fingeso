@@ -136,7 +136,6 @@ async function emitirReceta() {
     observaciones: observaciones.value,
     diagnostico: diagnostico.value,
     examenIndicado: examenIndicado.value,
-    estado: true,
     medico: { id: localStorage.getItem('idMedico') },
     paciente: { id: props.cita.paciente.id },
     medicamentosList: medicamentosList.value.map(m => ({ idMedicamento: m.idMedicamento})),

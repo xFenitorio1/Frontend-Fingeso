@@ -125,9 +125,10 @@ async function confirmarEntrega() {
   if (!recetaSeleccionada.value) return
 
   try {
-    await axios.put(`http://localhost:8080/api/receta/entregar/${recetaSeleccionada.value.id}`)
+    // EL ENDPOINT LO CAMBIA A TRUE, PERO POR DEFECTO ESTA EN TRUE
+    // await axios.put(`http://localhost:8080/api/receta/entregarReceta/${recetaSeleccionada.value.id}`)
     // Marcar como entregada localmente (para ocultarla de la lista)
-    recetaSeleccionada.value.es_etiquetado = true
+    recetaSeleccionada.value.estado = false 
   } catch (error) {
     console.error('Error al entregar receta:', error)
     alert('Error al marcar la receta como entregada.')
@@ -138,6 +139,6 @@ async function confirmarEntrega() {
 }
 
 const recetasFiltradas = computed(() => {
-  return recetas.value.filter(r => !r.es_etiquetado)
+  return recetas.value.filter(r => r.estado)
 })
 </script>

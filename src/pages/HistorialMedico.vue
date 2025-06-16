@@ -6,31 +6,41 @@
           <v-card>
             <v-card-title class="text-h5">Historial Médico</v-card-title>
             <v-card-text>
-              <v-expansion-panels>
-                <v-expansion-panel
-                  v-for="examen in examenes"
-                  :key="examen.id"
-                >
-                  <v-expansion-panel-title>
-                    <div>
-                      <strong>Examen:</strong> {{ examen.nombre }}<br>
+              <!-- Sección de Exámenes -->
+              <div v-if="examenes.length > 0">
+                <h3 class="text-h6 mb-4">Exámenes</h3>
+                <div v-for="examen in examenes" :key="examen.id" class="mb-4">
+                  <v-card outlined>
+                    <v-card-title>
+                      <strong>Examen:</strong> {{ examen.nombre }}
+                    </v-card-title>
+                    <v-card-text>
                       <strong>Fecha:</strong> {{ examen.fecha }}
-                    </div>
-                  </v-expansion-panel-title>
-                  <v-expansion-panel-text>
-                    <div>
-                      <strong>Síntomas:</strong>
-                      <ul>
-                        <li v-for="sintoma in examen.sintomas" :key="sintoma">{{ sintoma }}</li>
-                      </ul>
-                      <strong>Medicamentos:</strong>
-                      <ul>
-                        <li v-for="med in examen.medicamentos" :key="med">{{ med }}</li>
-                      </ul>
-                    </div>
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
+                    </v-card-text>
+                  </v-card>
+                </div>
+              </div>
+
+              <!-- Panel para Recetas -->
+              <v-card class="mt-6" outlined>
+                <v-card-title class="text-h6">Recetas</v-card-title>
+                <v-card-text>
+                  <div v-if="recetas.length === 0">No hay recetas disponibles.</div>
+                  <div v-for="receta in recetas" :key="receta.idReceta" class="mb-4">
+                    <p><strong>Diagnóstico:</strong> {{ receta.diagnostico }}</p>
+                    <p><strong>Examen indicado:</strong> {{ receta.examenIndicado }}</p>
+                    <p><strong>Fecha emisión:</strong> {{ receta.fechaEmision.split('T')[0] }}</p>
+
+                    <strong>Medicamentos:</strong>
+                    <ul>
+                      <li v-for="med in receta.medicamentosList" :key="med.idMedicamento">
+                        {{ med.nombreComercial }}
+                      </li>
+                    </ul>
+                  </div>
+                </v-card-text>
+              </v-card>
+
             </v-card-text>
           </v-card>
         </v-col>
@@ -42,11 +52,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-const rol = ref(null)
 const examenes = ref([])
+const recetas = ref([]) 
 
-onMounted(async () => {
-  rol.value = localStorage.getItem('rol')
+onMounted(async () => { 
 
   const idPaciente = localStorage.getItem('idPaciente')
   if (!idPaciente) return alert('ID del paciente no encontrado')
@@ -56,19 +65,24 @@ onMounted(async () => {
     if (!res.ok) throw new Error('Error al obtener historial médico')
 
     const data = await res.json()
+    console.log('Respuesta completa:', data)
 
-    if (data.examenes) {
+    if (data.examenes && Array.isArray(data.examenes)) {
       examenes.value = data.examenes.map(e => ({
-        id: e.id,
+        id: e.idExamen,
         nombre: e.tipo,
         fecha: e.fechaExamen.split('T')[0],
-        sintomas: e.sintomas,
-        medicamentos: e.medicamentos
+        sintomas: e.sintomas ?? [],
+        medicamentos: e.medicamentos ?? []
       }))
     }
 
+    if (data.recetas && Array.isArray(data.recetas)) {
+      recetas.value = data.recetas
+    }
+
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error al cargar historial médico:', error)
     alert('No se pudo cargar el historial médico')
   }
 })

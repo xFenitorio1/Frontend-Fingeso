@@ -8,15 +8,22 @@
             <v-card-text>
               <v-form ref="form" @submit.prevent="emitirExamen">
                 <v-text-field
-                    v-model="rut"
-                    label="RUT Chileno"
-                    :rules="[v => !!v || 'El RUT es obligatorio']"
-                    required
+                  v-model="rut"
+                  label="RUT Chileno"
+                  :rules="[v => !!v || 'El RUT es obligatorio']"
+                  required
                 ></v-text-field>
 
                 <v-text-field
                   v-model="tipoExamen"
                   label="Tipo de Examen"
+                  required
+                ></v-text-field>
+
+                <v-text-field
+                  v-model="examenIndicado"
+                  label="Nombre para asociar en receta (examenIndicado)"
+                  :rules="[v => !!v || 'Campo obligatorio']"
                   required
                 ></v-text-field>
 
@@ -44,6 +51,7 @@ import { ref, watch } from 'vue'
 
 const rut = ref('')
 const tipoExamen = ref('')
+const examenIndicado = ref('')
 const fechaEmision = ref('')
 
 function formatearRut(valor) {
@@ -63,25 +71,22 @@ watch(rut, (nuevo) => {
 
 async function emitirExamen() {
   try {
-    // 1. Obtener ID del paciente por RUT
     const idPacienteRes = await fetch(`http://localhost:8080/api/paciente/getIdByRut/${rut.value}`)
     if (!idPacienteRes.ok) throw new Error('No se pudo obtener el ID del paciente')
 
     const idPaciente = await idPacienteRes.json()
 
-    // 2. Obtener ID del enfermero desde localStorage
     const idEnfermero = localStorage.getItem('idEnfermero')
     if (!idEnfermero) throw new Error('ID del enfermero no encontrado en localStorage')
 
-    // 3. Armar JSON del examen
     const examen = {
       tipo: tipoExamen.value,
-      fechaExamen: new Date(fechaEmision.value).toISOString(), // ISO 8601 format
+      fechaExamen: new Date(fechaEmision.value).toISOString(),
+      examenIndicado: examenIndicado.value,
       paciente: { id: idPaciente },
       enfermero: { id: parseInt(idEnfermero) }
     }
 
-    // 4. Hacer POST al backend
     const res = await fetch('http://localhost:8080/api/examen/crearExamen', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -94,9 +99,9 @@ async function emitirExamen() {
 
     alert('Examen emitido correctamente')
 
-    console.log('Examen emitido:', examen)
     rut.value = ''
     tipoExamen.value = ''
+    examenIndicado.value = ''
     fechaEmision.value = ''
 
   } catch (error) {

@@ -40,6 +40,7 @@
     <EmisionReceta
       v-model="dialogo"
       :cita="citaSeleccionada"
+      @recetaEmitida ="eliminarCita"
     />
   </v-app>
 </template>
@@ -61,6 +62,8 @@ onMounted(async () => {
   try {
     const res = await axios.get('http://localhost:8080/api/cita/getCitas')
     citas.value = res.data
+
+    console.log('Citas cargadas:', citas.value)
   } catch (e) {
     console.error('Error al cargar citas:', e)
   }
@@ -70,7 +73,8 @@ const citasFiltradas = computed(() =>
   citas.value.filter(cita =>
     cita.medico &&
     cita.medico.id === idMedico.value &&
-    cita.eliminada === false
+    cita.eliminada === false &&
+    cita.agendaMedico === true
   )
 )
 
@@ -85,5 +89,12 @@ function formatearFecha(fechaISO) {
 function abrirDialogo(cita) {
   citaSeleccionada.value = cita
   dialogo.value = true
+}
+
+function eliminarCita(idCita) {
+  const index = citas.value.findIndex(c => c.idCita === idCita)
+  if (index !== -1) {
+    citas.value.splice(index, 1)
+  }
 }
 </script>

@@ -128,7 +128,6 @@ function eliminarMedicamento(index) {
 }
 
 async function emitirReceta() {
-
   console.log("cantidades:", cantidades.value);
   const receta = {
     fechaEmision: new Date(fechaEmision.value).toISOString(),
@@ -138,19 +137,26 @@ async function emitirReceta() {
     examenIndicado: examenIndicado.value,
     medico: { id: localStorage.getItem('idMedico') },
     paciente: { id: props.cita.paciente.id },
-    medicamentosList: medicamentosList.value.map(m => ({ idMedicamento: m.idMedicamento})),
+    medicamentosList: medicamentosList.value.map(m => ({ idMedicamento: m.idMedicamento })),
     cantidadMedicamentos: cantidades.value.map(c => parseInt(c))
   }
 
   console.log('Receta a emitir:', receta)
 
   try {
+    // 1. Crear la receta
     await axios.post('http://localhost:8080/api/receta/crearReceta', receta)
-    alert('Receta emitida con éxito')
+
+    // 2. Marcar cita como atendida
+    await axios.put(`http://localhost:8080/api/cita/atendidoPorMedico/${props.cita.idCita}`)
+
+    emit('recetaEmitida', props.cita.idCita)
+
+    alert('Receta emitida con éxito y cita marcada como atendida.')
     emit('update:modelValue', false)
   } catch (error) {
-    console.error('Error al emitir receta:', error)
-    alert('Ocurrió un error al emitir la receta.')
+    console.error('Error al emitir receta o marcar como atendida:', error)
+    alert('Ocurrió un error al emitir la receta o marcar la cita como atendida.')
   }
 }
 

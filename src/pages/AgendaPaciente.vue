@@ -94,7 +94,7 @@ function formatearFecha(fechaISO) {
 const citasFiltradas = computed(() =>
     citas.value.filter(cita => {
         return cita.paciente && cita.paciente.id === idPaciente.value &&
-        cita.eliminada === false
+        cita.eliminada === false && cita.agendaMedico === true && cita.agendaPaciente === true;
     })
 )
 </script>   

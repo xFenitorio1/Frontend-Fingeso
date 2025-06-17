@@ -2,31 +2,39 @@
   <v-app>
     <v-container max-width="500px" class="mt-16">
       <v-card>
-        <v-card-title class="text-h5">Crear Cuenta de Clinica</v-card-title>
+        <v-card-title class="text-h5">Crear Cuenta de Clínica</v-card-title>
         <v-card-text>
           <v-form ref="form" v-model="formValido" @submit.prevent="crearCuenta">
+            
+            <!-- Correo institucional -->
             <v-text-field
               v-model="correoNombre"
               label="Correo"
               append-inner="@umbrella.cl"
+              :rules="[v => !!v || 'El correo es obligatorio', v => /^[a-zA-Z0-9._%+-]+$/.test(v) || 'Formato inválido']"
               required
             ></v-text-field>
-            <!-- Vista previa del correo -->
             <div v-if="correoNombre" style="color: #888; margin-bottom: 10px;">
               <strong>Correo completo:</strong> {{ correoPreview }}
             </div>
+
+            <!-- Nombre -->
             <v-text-field
               v-model="nombre"
               label="Nombre de Usuario"
               :rules="[v => !!v || 'El nombre de usuario es obligatorio']"
               required
             ></v-text-field>
+
+            <!-- RUT con validación -->
             <v-text-field
               v-model="rut"
-              label="RUT"
-              :rules="[v => !!v || 'El RUT es obligatorio']"
+              label="RUT Chileno"
+              :rules="[validarRut]"
               required
             ></v-text-field>
+
+            <!-- Contraseña -->
             <v-text-field
               v-model="password"
               label="Contraseña"
@@ -34,28 +42,37 @@
               :rules="[v => !!v || 'La contraseña es obligatoria']"
               required
             ></v-text-field>
+
+            <!-- Rol -->
             <v-select
-            v-model="rol"
-            :items="roles"
-            item-title="label"
-            item-value="value"
-            label="Rol"
-            :rules="[v => !!v || 'El rol es obligatorio']"
-            required
+              v-model="rol"
+              :items="roles"
+              item-title="label"
+              item-value="value"
+              label="Rol"
+              :rules="[v => !!v || 'El rol es obligatorio']"
+              required
             ></v-select>
-            <v-text-field
+
+            <!-- Especialidad solo si es médico -->
+            <v-select
               v-if="rol === 'medico'"
               v-model="especialidad"
+              :items="especialidades"
+              item-title="label"
+              item-value="value"
               label="Especialidad"
               :rules="[v => !!v || 'La especialidad es obligatoria']"
               required
               class="mt-2"
             />
+
             <v-btn color="primary" class="mt-4" block type="submit">
               Crear Cuenta
             </v-btn>
           </v-form>
-          <v-alert v-if="mensaje" :type="mensajeTipo" class="mt-4">
+
+          <v-alert v-if="mensaje" :type="mensajeTipo" class="mt-4" border="start" prominent>
             {{ mensaje }}
           </v-alert>
         </v-card-text>
@@ -86,6 +103,16 @@ const roles = [
   { label: 'Secretario', value: 'secretario' },
   { label: 'Enfermero', value: 'enfermero' },
 ]
+
+const especialidades = [
+  { label: 'Cardiología', value: 'Cardiología' },
+  { label: 'Pediatría', value: 'Pediatría' },
+  { label: 'Dermatología', value: 'Dermatología' },
+  { label: 'Odontología', value: 'Odontología' },
+  { label: 'Ginecología', value: 'Ginecología' },
+  { label: 'Oftalmología', value: 'Oftalmología' },
+  { label: 'Traumatología', value: 'Traumatología' },
+  { label: 'Medicina General', value: 'Medicina General' },]
 
 const correoPreview = computed(() => correoNombre.value ? `${correoNombre.value}@umbrella.cl` : '')
 
@@ -141,10 +168,6 @@ async function crearCuenta() {
         }
         mensaje.value = '¡Cuenta creada exitosamente!'
         mensajeTipo.value = 'success'
-        correoNombre.value = ''
-        rut.value = ''
-        password.value = ''
-        rol.value = ''
         form.value.resetValidation()
     } catch (e) {
         mensaje.value = 'Error al crear la cuenta: ' + e.message
@@ -152,6 +175,11 @@ async function crearCuenta() {
     }
     }
 
+function validarRut(rut) {
+  const limpio = rut.replace(/[^\dkK]/g, '')
+  return (limpio.length >= 8 && limpio.length <= 9) || 'El RUT debe tener entre 8 y 9 dígitos'
+}
+  
 function formatearRut(valor) {
   valor = valor.replace(/[^\dkK]/g, '');
   let cuerpo = valor.slice(0, -1);

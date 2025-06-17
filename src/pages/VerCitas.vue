@@ -29,14 +29,22 @@
                       <p><strong>Especialidad:</strong> {{ cita.medico?.especialidad }}</p>
                     </v-card-text>
                     <v-card-actions>
-                      <v-btn
-                        color="error"
-                        variant="flat"
-                        @click="cancelarCita(cita.idCita)"
-                        :disabled="cita.agendaPaciente === false"
-                      >
-                        Asistió
-                      </v-btn>
+                        <v-btn
+                            color="error"
+                            variant="flat"
+                            @click="llegadaPaciente(cita.idCita)"
+                            :disabled="cita.agendaPaciente === false"
+                        >
+                            Asistió
+                        </v-btn>
+                        <v-btn
+                            color="warning"
+                            variant="flat"
+                            @click="cancelarCitaPaciente(cita.idCita)"
+                            :disabled="cita.agendaPaciente === false"
+                            >
+                            Cancelar Cita
+                        </v-btn>
                     </v-card-actions>
                   </v-card>
                 </div>
@@ -95,13 +103,23 @@ watch(rutBusqueda, async (nuevoRut) => {
   }
 })
 
-async function cancelarCita(idCita) {
+async function llegadaPaciente(idCita) {
   try {
     await axios.put(`http://localhost:8080/api/cita/llegadaPaciente/${idCita}`)
     const cita = citas.value.find(c => c.idCita === idCita)
     if (cita) cita.agendaPaciente = false 
   } catch (error) {
     console.error('Error al cancelar la cita:', error)
+    alert('No se pudo cancelar la cita.')
+  }
+}
+async function cancelarCitaPaciente(idCita) {
+  try {
+    await axios.put(`http://localhost:8080/api/cita/eliminarCita/${idCita}`)
+    const cita = citas.value.find(c => c.idCita === idCita)
+    if (cita) cita.eliminada = true
+  } catch (error) {
+    console.error('Error al cancelar la cita por el paciente:', error)
     alert('No se pudo cancelar la cita.')
   }
 }

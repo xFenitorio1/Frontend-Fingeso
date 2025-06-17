@@ -19,9 +19,14 @@
                   <v-card>
                     <v-card-title class="d-flex justify-space-between align-center">
                       <span>Paciente: {{ cita.paciente?.nombre || 'Desconocido' }}</span>
-                      <v-btn color="primary" @click="abrirDialogo(cita)">
-                        Emitir Receta
-                      </v-btn>
+                      <div class="d-flex flex-column align-end">
+                        <v-btn color="primary" class="mb-2" @click="abrirDialogo(cita)">
+                          Emitir Receta
+                        </v-btn>
+                        <v-btn color="info" @click="verHistorial(cita)">
+                          Ver Historial Médico
+                        </v-btn>
+                      </div>
                     </v-card-title>
                     <v-card-text>
                       Fecha: {{ formatearFecha(cita.fechaCita) }}<br>
@@ -38,9 +43,14 @@
 
     <!-- Diálogo externo para mostrar datos del paciente -->
     <EmisionReceta
-      v-model="dialogo"
+      v-model="dialogoEmision"
       :cita="citaSeleccionada"
       @recetaEmitida ="eliminarCita"
+    />
+    <!-- Diálogo para ver historial médico -->
+    <VerHistorialMedico
+      v-model="dialogoHistorial"
+      :cita="citaSeleccionada"
     />
   </v-app>
 </template>
@@ -48,12 +58,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import EmisionReceta from '@/components/Receta/EmisionReceta.vue'
+import VerHistorialMedico from '@/components/Receta/VerHistorialMedico.vue'
 import axios from 'axios'
 
 const rol = ref(null)
 const idMedico = ref(null)
 const citas = ref([])
-const dialogo = ref(false)
+const dialogoEmision = ref(false)
+const dialogoHistorial = ref(false)
 const citaSeleccionada = ref(null)
 
 onMounted(async () => {
@@ -88,7 +100,12 @@ function formatearFecha(fechaISO) {
 
 function abrirDialogo(cita) {
   citaSeleccionada.value = cita
-  dialogo.value = true
+  dialogoEmision.value = true
+}
+
+function verHistorial(cita) {
+  citaSeleccionada.value = cita
+  dialogoHistorial.value = true
 }
 
 function eliminarCita(idCita) {

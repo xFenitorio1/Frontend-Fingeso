@@ -17,13 +17,16 @@
                                     v-model="correo"
                                     label="Correo Electrónico"
                                     type="email"
-                                    :rules="[v => !!v || 'El correo es obligatorio']"
+                                    :rules="[
+                                      v => !!v || 'El correo es requerido',
+                                      v => /.+@.+\..+/.test(v) || 'Correo inválido'
+                                    ]"
                                     required
                                 ></v-text-field>
                                 <v-text-field
                                     v-model="rut"
                                     label="RUT Chileno"
-                                    :rules="[v => !!v || 'El RUT es obligatorio']"
+                                    :rules="[validarRut]"
                                     required
                                 ></v-text-field>
                                 <v-text-field
@@ -33,15 +36,15 @@
                                     :rules="[v => !!v || 'La contraseña es obligatoria']"
                                     required
                                 ></v-text-field>
-                                <v-btn color="#C73636" class="mt-4" type="submit">Registrar</v-btn>
-                            </v-form>
-                            <v-alert
+                                  <v-btn color="#C73636" class="mt-4" type="submit">Registrar</v-btn>
+                              </v-form>
+                              <v-alert
                                 v-if="mensaje"
                                 type="success"
                                 class="mt-4"
                                 border="start"
                                 prominent
-                            >
+                              >
                                 {{ mensaje }}
                             </v-alert>
                         </v-card-text>
@@ -149,6 +152,11 @@ function formatearRut(valor) {
   let dv = valor.slice(-1);
   cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   return cuerpo ? `${cuerpo}-${dv}` : dv;
+}
+
+function validarRut(rut) {
+  const limpio = rut.replace(/[^\dkK]/g, '')
+  return (limpio.length >= 8 && limpio.length <= 9) || 'El RUT debe tener entre 8 y 9 dígitos'
 }
 
 watch(rut, (nuevo) => {

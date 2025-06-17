@@ -10,7 +10,7 @@
           <div v-if="correo"><strong>Correo:</strong> {{ correo }}</div>
           <div v-if="paso > 2 && sucursal"><strong>Sucursal:</strong> {{ sucursal }}</div>
           <div v-if="paso > 3 && especialidad"><strong>Especialidad:</strong> {{ especialidad }}</div>
-          <div v-if="paso > 4 && fecha"><strong>Fecha:</strong> {{ fecha }}</div>
+          <div v-if="paso > 4 && fecha"><strong>Fecha:</strong> {{ fechaFormateada }}</div>
           <div v-if="paso > 5 && medico"><strong>Médico:</strong> {{ medicoNombre }}</div>
         </div>
 
@@ -56,16 +56,32 @@
         ></v-select>
 
         <!-- Paso 4: Fecha -->
-        <v-text-field
+        <v-menu
           v-if="paso === 4"
-          v-model="fecha"
-          label="Fecha"
-          type="date"
-          :min="fechaMin"
-          :max="fechaMax"
-          :rules="[v => !!v || 'Selecciona una fecha válida']"
-          required
-        ></v-text-field>
+          v-model="menuFecha"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+        >
+          <template #activator="{ props }">
+            <v-text-field
+              :model-value="fechaVisual"
+              label="Fecha"
+              prepend-icon="mdi-calendar"
+              readonly
+              v-bind="props"
+              :rules="[v => !!v || 'Selecciona una fecha válida']"
+            />
+          </template>
+
+          <v-date-picker
+            v-model="fecha"
+            :min="fechaMin"
+            :max="fechaMax"
+            :allowed-dates="soloDiasHabiles"
+            @update:model-value="menuFecha = false"
+          />
+        </v-menu>
 
         <!-- Paso 5: Médico disponible -->
         <v-select
@@ -138,6 +154,14 @@ const tresMesesDespues = new Date()
 tresMesesDespues.setMonth(tresMesesDespues.getMonth() + 3)
 const fechaMax = tresMesesDespues.toISOString().split('T')[0]
 
+const menuFecha = ref(false)
+
+// Solo permite días lunes a viernes
+function soloDiasHabiles(dateString) {
+  const day = new Date(dateString).getDay()
+  return day >= 1 && day <= 5 // 1 = Lunes, ..., 5 = Viernes
+}
+
 // Obtener médicos al montar
 onMounted(async () => {
   try {
@@ -194,6 +218,25 @@ function formatearRut(valor) {
   cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
   return cuerpo ? `${cuerpo}-${dv}` : dv
 }
+
+const fechaFormateada = computed(() => {
+  if (!fecha.value) return ''
+  return new Date(fecha.value).toLocaleDateString('es-CL') 
+})
+
+const fechaVisual = computed(() => {
+  if (!fecha.value) return ''
+  const opciones = { weekday: 'short', day: '2-digit', month: 'short' }
+  return new Date(fecha.value).toLocaleDateString('es-CL', opciones)
+})
+
+function formatearFechaParaEmail(fechaObj) {
+  const dia = fechaObj.getDate().toString().padStart(2, '0')
+  const mes = (fechaObj.getMonth() + 1).toString().padStart(2, '0')
+  const año = fechaObj.getFullYear()
+  return `${dia}/${mes}/${año}`
+}
+
 
 function validarRut(rut) {
   const limpio = rut.replace(/[^\dkK]/g, '')
@@ -305,11 +348,13 @@ async function enviarCita() {
     }
     reservasLocales.value[clave].push(hora.value)
 
+    const fechaFormateada = formatearFechaParaEmail(fecha.value)
+
     // Enviar correo
     const emailParams = new URLSearchParams()
     emailParams.append("to", correo.value)
     emailParams.append("subject", "Confirmación de Cita Médica")
-    emailParams.append("fecha", fecha.value)
+    emailParams.append("fecha", fechaFormateada)
     emailParams.append("hora", hora.value)
     emailParams.append("servicio", especialidad.value)
     emailParams.append("nombre", medicoCompleto.nombre)

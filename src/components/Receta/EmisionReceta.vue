@@ -128,6 +128,23 @@ function eliminarMedicamento(index) {
 }
 
 async function emitirReceta() {
+
+    for (let i = 0; i < medicamentosList.value.length; i++) {
+    const idMed = medicamentosList.value[i].idMedicamento
+    const cantidadDeseada = parseInt(cantidades.value[i])
+    const medicamento = listaMedicamentos.value.find(m => m.idMedicamento === idMed)
+
+    if (!medicamento) {
+      alert(`Medicamento con ID ${idMed} no encontrado.`)
+      return
+    }
+
+    if (medicamento.stockReal - cantidadDeseada < 0) {
+      alert(`No hay stock suficiente para "${medicamento.nombreComercial}". Quedan ${medicamento.stockReal} unidades y se están solicitando ${cantidadDeseada}.`)
+      return
+    }
+  }
+
   console.log("cantidades:", cantidades.value);
   const receta = {
     fechaEmision: new Date(fechaEmision.value).toISOString(),

@@ -10,12 +10,13 @@
             </v-btn>
           </v-col>
           <v-col cols="6" class="d-flex flex-column align-end">
-            <v-btn color="primary" class="ma-5" width="300" height="50">
+            <v-btn color="primary" class="ma-5" width="300" height="50" to="/Reservas">
               Reserva tu hora
             </v-btn>
           </v-col>
         </v-row>
-
+        <v-divider class="my-8"></v-divider>
+        <h1 class="text-center text-primary"> Nuestras especialidades</h1>
         <v-container>
           <v-row justify="center" class="mt-10" dense>
             <v-col
@@ -33,6 +34,7 @@
               <div style="font-weight: bold;">{{ item.nombre }}</div>
             </v-col>
           </v-row>
+          <v-divider class="my-8"></v-divider>
           <v-row justify="center" class="mt-10">
             <v-col cols="12" class="text-center">
               <h2>¿Por qué elegirnos?</h2>
@@ -40,7 +42,8 @@
                 En nuestra clínica, nos comprometemos a brindar atención médica de alta calidad con un enfoque centrado en el paciente. Nuestro equipo de profesionales está aquí para cuidar de tu salud y bienestar.
               </p>
             </v-col>
-          </v-row> 
+          </v-row>
+          <v-divider class="my-8"></v-divider> 
           <v-row justify="center" class="mt-10">
             <v-col cols="12" class="text-center">
               <h2 class="text-primary">Atención sin pausas. Registro sin errores. Umbrella, a tu lado.</h2>

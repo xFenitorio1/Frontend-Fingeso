@@ -5,9 +5,11 @@
       <v-container>
         <v-row>
           <v-col cols="6" class="d-flex flex-column align-start">
+          <a href="#footer" style="text-decoration: none;">
             <v-btn color="primary" class="ma-5" width="300" height="50">
               Nuestras sucursales
             </v-btn>
+          </a>
           </v-col>
           <v-col cols="6" class="d-flex flex-column align-end">
             <v-btn color="primary" class="ma-5" width="300" height="50" to="/Reservas">

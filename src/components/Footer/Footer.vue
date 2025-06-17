@@ -1,16 +1,14 @@
 <template>
-  <v-footer color="#fff" app>
+  <v-footer color="#fff" app id="footer">
     <v-container>
         <v-divider class="mb-8"></v-divider>
       <v-row>
         <!-- Ubicaciones -->
         <v-col cols="12" md="4">
           <h3 class="font-weight-bold">Ubicaciones</h3>
-          <div>Sucursal 1<br><span>Dirección 1</span></div>
-          <div class="mt-2">Sucursal 2<br><span>Dirección 2</span></div>
-          <div class="mt-2">Sucursal 3<br><span>Dirección 3</span></div>
-          <div class="mt-2">Sucursal 4<br><span>Dirección 4</span></div>
-          <div class="mt-2">Sucursal 5<br><span>Dirección 5</span></div>
+          <div class="mt-2">Sucursal Norte<br><span>912 West Birkin Boulevard, Raccoon City, RC 50214</span></div>
+          <div class="mt-2">Sucursal Centro<br><span>300 Spencer Lane, Medical District, Raccoon City, RC 50211</span></div>
+          <div class="mt-2">Sucursal Sur<br><span>77 Cain Street, Central District, Raccoon City, RC 50209</span></div>
         </v-col>
 
         <!-- Divider -->
@@ -28,10 +26,10 @@
 
         <!-- Otros enlaces -->
         <v-col cols="12" md="4">
-          <h3 class="font-weight-bold">Que pongo acaa</h3>
-          <div>Que</div>
-          <div>Pongo</div>
-          <div>Aca</div>
+          <h3 class="font-weight-bold">Reclamos</h3>
+          <div>Felicitaciones</div>
+          <div>Sugerencias</div>
+          <div>Aranceles</div>
         </v-col>
       </v-row>
       <v-row>

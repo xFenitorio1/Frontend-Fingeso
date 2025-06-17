@@ -4,14 +4,14 @@
       <h2 class="text-h4 mb-6">Entregar Receta</h2>
       <v-text-field
         v-model="rutBusqueda"
-        label="Buscar por RUT Chileno"
+        label="Buscar por RUN del Paciente"
         @input="formatearRutBusqueda"
         clearable
         class="mb-4"
       ></v-text-field>
 
       <v-alert v-if="rutBusqueda && recetasFiltradas.length === 0" type="info" class="mb-4">
-        No hay recetas pendientes para este RUT.
+        No hay recetas pendientes para este RUN.
       </v-alert>
 
       <v-list v-if="recetasFiltradas.length > 0">

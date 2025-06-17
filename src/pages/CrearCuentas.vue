@@ -29,7 +29,7 @@
             <!-- RUT con validación -->
             <v-text-field
               v-model="rut"
-              label="RUT Chileno"
+              label="RUN"
               :rules="[validarRut]"
               required
             ></v-text-field>
@@ -177,7 +177,7 @@ async function crearCuenta() {
 
 function validarRut(rut) {
   const limpio = rut.replace(/[^\dkK]/g, '')
-  return (limpio.length >= 8 && limpio.length <= 9) || 'El RUT debe tener entre 8 y 9 dígitos'
+  return (limpio.length >= 8 && limpio.length <= 9) || 'El RUN debe tener entre 8 y 9 dígitos'
 }
   
 function formatearRut(valor) {

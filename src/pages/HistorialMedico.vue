@@ -58,7 +58,7 @@ const recetas = ref([])
 onMounted(async () => { 
 
   const idPaciente = localStorage.getItem('idPaciente')
-  if (!idPaciente) return alert('ID del paciente no encontrado')
+  if (!idPaciente) return alert('Porfavor, ingrese a su cuenta para ver su historial médico.')
 
   try {
     const res = await fetch(`http://localhost:8080/api/paciente/${idPaciente}/historial`)

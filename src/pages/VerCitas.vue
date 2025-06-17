@@ -8,14 +8,14 @@
             <v-card-text>
               <v-text-field
                 v-model="rutBusqueda"
-                label="Buscar por RUT Chileno"
+                label="Buscar por RUN del Paciente"
                 @input="formatearRutBusqueda"
                 clearable
                 class="mb-4"
               ></v-text-field>
 
               <v-alert v-if="rutBusqueda && citasFiltradas.length === 0" type="info" class="mb-4">
-                No se encontraron citas para este RUT.
+                No se encontraron citas para este RUN.
               </v-alert>
 
               <div v-if="citasFiltradas.length > 0">

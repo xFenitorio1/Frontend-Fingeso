@@ -25,7 +25,7 @@
                                 ></v-text-field>
                                 <v-text-field
                                     v-model="rut"
-                                    label="RUT Chileno"
+                                    label="RUN"
                                     :rules="[validarRut]"
                                     required
                                 ></v-text-field>
@@ -156,7 +156,7 @@ function formatearRut(valor) {
 
 function validarRut(rut) {
   const limpio = rut.replace(/[^\dkK]/g, '')
-  return (limpio.length >= 8 && limpio.length <= 9) || 'El RUT debe tener entre 8 y 9 dígitos'
+  return (limpio.length >= 8 && limpio.length <= 9) || 'El RUN debe tener entre 8 y 9 dígitos'
 }
 
 watch(rut, (nuevo) => {

@@ -6,7 +6,7 @@
       <v-form @submit.prevent="siguientePaso">
         <!-- Resumen dinámico -->
         <div class="mb-2" v-if="paso > 1">
-          <div v-if="rut"><strong>RUT:</strong> {{ rut }}</div>
+          <div v-if="rut"><strong>RUN:</strong> {{ rut }}</div>
           <div v-if="correo"><strong>Correo:</strong> {{ correo }}</div>
           <div v-if="paso > 2 && sucursal"><strong>Sucursal:</strong> {{ sucursal }}</div>
           <div v-if="paso > 3 && especialidad"><strong>Especialidad:</strong> {{ especialidad }}</div>
@@ -18,7 +18,7 @@
         <div v-if="paso === 1">
           <v-text-field
             v-model="rut"
-            label="RUT Chileno"
+            label="RUN del paciente"
             :rules="[validarRut]"
             required
             class="mb-4"
@@ -112,7 +112,13 @@
           </v-btn>
         </v-col>
         <v-col :cols="paso > 1 ? 6 : 12">
-          <v-btn color="primary" block type="submit">
+          <v-btn
+            color="primary"
+            block
+            type="submit"
+            :loading="cargando"
+            :disabled="cargando"
+          >
             {{ paso < 6 ? 'Siguiente' : 'Reservar' }}
           </v-btn>
         </v-col>
@@ -142,6 +148,7 @@ const medico = ref(null)
 const hora = ref('')
 const mensaje = ref('')
 const reservasLocales = ref({})
+const cargando = ref(false)
 
 const medicos = ref([])
 const especialidades = ref([])
@@ -197,6 +204,16 @@ const horasPorMedico = {
   3: ['09:30:00', '10:30:00'],
   4: ['11:30:00', '12:30:00'],
   5: ['14:00:00', '15:00:00'],
+  6: ['08:00:00', '09:00:00'],
+  7: ['10:00:00', '11:00:00'],
+  8: ['12:00:00', '13:00:00'],
+  9: ['14:00:00', '15:00:00'],
+  10: ['09:00:00', '10:00:00'],
+  11: ['11:00:00', '12:00:00'],
+  12: ['13:00:00', '14:00:00'],
+  13: ['15:00:00', '16:00:00'],
+  14: ['08:30:00', '09:30:00'],
+  15: ['10:30:00', '11:30:00'],
 }
 
 const horasDisponibles = computed(() => {
@@ -240,7 +257,7 @@ function formatearFechaParaEmail(fechaObj) {
 
 function validarRut(rut) {
   const limpio = rut.replace(/[^\dkK]/g, '')
-  return (limpio.length >= 8 && limpio.length <= 9) || 'El RUT debe tener entre 8 y 9 dígitos'
+  return (limpio.length >= 8 && limpio.length <= 9) || 'El RUN debe tener entre 8 y 9 dígitos'
 }
 
 watch(rut, (nuevo) => {
@@ -278,7 +295,9 @@ async function siguientePaso() {
   if (paso.value < 6) {
     paso.value++
   } else {
+    cargando.value = true
     await enviarCita()
+    cargando.value = false
   }
 }
 

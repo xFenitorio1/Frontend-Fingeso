@@ -9,8 +9,8 @@
               <v-form ref="form" @submit.prevent="emitirExamen">
                 <v-text-field
                   v-model="rut"
-                  label="RUT Chileno"
-                  :rules="[v => !!v || 'El RUT es obligatorio']"
+                  label="RUN del paciente"
+                  :rules="[v => !!v || 'El RUN es obligatorio']"
                   required
                 ></v-text-field>
 

@@ -22,7 +22,7 @@
 
                 <v-text-field
                   v-model="examenIndicado"
-                  label="Nombre para asociar en receta (examenIndicado)"
+                  label="Nombre del Examen Indicado"
                   :rules="[v => !!v || 'Campo obligatorio']"
                   required
                 ></v-text-field>

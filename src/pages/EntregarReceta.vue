@@ -86,7 +86,6 @@ function formatearFecha(fechaISO) {
   return `${dia}/${mes}/${anio}`;
 }
 
-// 👇 Se ejecuta automáticamente cuando el rut cambia
 watch(rutBusqueda, async (nuevoRut) => {
   if (!nuevoRut || nuevoRut.length < 9) {
     recetas.value = []

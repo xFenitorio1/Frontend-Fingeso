@@ -31,10 +31,18 @@
                   {{ med.nombreComercial }} - Cantidad: {{ receta.cantidadMedicamentos[index] }}
                 </li>
               </ul>
-              <div><strong>Fecha de vigencia:</strong> {{ formatearFecha(receta.vigencia) }}</div>
+              <div>
+                <strong>Fecha de vigencia:</strong> {{ formatearFecha(receta.vigencia) }}
+                <span v-if="estaVencida(receta)" style="color: red; font-weight: bold;"> (Receta vencida)</span>
+              </div>
             </v-card-text>
             <v-card-actions>
-              <v-btn color="primary" @click="abrirDialogo(receta)" variant="flat">
+              <v-btn
+                color="primary"
+                variant="flat"
+                :disabled="estaVencida(receta)"
+                @click="abrirDialogo(receta)"
+              >
                 Entregar receta
               </v-btn>
             </v-card-actions>
@@ -132,6 +140,12 @@ async function confirmarEntrega() {
   recetaSeleccionada.value.estado = true
   dialogo.value = false
   recetaSeleccionada.value = null
+}
+
+function estaVencida(receta) {
+  const hoy = new Date()
+  const fechaVigencia = new Date(receta.vigencia)
+  return fechaVigencia < hoy
 }
 
 const recetasFiltradas = computed(() => {

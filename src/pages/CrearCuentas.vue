@@ -67,7 +67,7 @@
               class="mt-2"
             />
 
-            <v-btn color="primary" class="mt-4" block type="submit">
+            <v-btn color="primary" class="mt-4" block type="submit" :disabled="!formValido">
               Crear Cuenta
             </v-btn>
           </v-form>

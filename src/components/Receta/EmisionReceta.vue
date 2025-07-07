@@ -52,9 +52,9 @@
           <h4>Medicamentos</h4>
 
           <div v-for="(med, index) in medicamentosList" :key="index" class="d-flex align-center mb-2">
-            <v-select
+            <v-autocomplete
               :items="listaMedicamentos"
-              item-title="nombreComercial"
+              :item-title="mostrarNombreConStock"
               item-value="idMedicamento"
               v-model="med.idMedicamento"
               label="Medicamento"
@@ -125,6 +125,10 @@ function agregarMedicamento() {
 function eliminarMedicamento(index) {
   medicamentosList.value.splice(index, 1)
   cantidades.value.splice(index, 1)
+}
+
+function mostrarNombreConStock(item) {
+  return `${item.nombreComercial} (Stock: ${item.stockReal ?? 'N/A'})`
 }
 
 async function emitirReceta() {

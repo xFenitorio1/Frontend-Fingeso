@@ -45,12 +45,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUsuarioStore } from '@/stores/usuario'
 
 
 const rol = ref(null)
 const email = ref('')
 const password = ref('')
 const router = useRouter()
+const usuario = useUsuarioStore()
 
 onMounted(() => {
   rol.value = localStorage.getItem('rol')
@@ -77,29 +79,33 @@ function login() {
     })
     .then(data => {
       console.log('Respuesta login:', data);
-      if (data && data.userType) {
-        const userRol = data.userType.toLowerCase();
-        localStorage.setItem('rol', userRol);
-        if (userRol === 'medico' && data.id) {
-          localStorage.setItem('idMedico', data.id);
-          const idMedico = Number(localStorage.getItem('idMedico'));
+      if (data && data.userType && data.id) {
+        const userRol = data.userType.toLowerCase()
+        const userId = data.id
+
+        
+        usuario.login({ rol: userRol, id: userId })
+
+        
+        if (userRol === 'medico') {
+          localStorage.setItem('idMedico', userId)
         }
-        if (userRol === 'paciente' && data.id) {
-          localStorage.setItem('idPaciente', data.id);
-          const idPaciente = Number(localStorage.getItem('idPaciente'));
+        if (userRol === 'paciente') {
+          localStorage.setItem('idPaciente', userId)
         }
-        if (userRol === 'enfermero' && data.id) {
-          localStorage.setItem('idEnfermero', data.id);
-          const idEnfermero = Number(localStorage.getItem('idEnfermero'));
+        if (userRol === 'enfermero') {
+          localStorage.setItem('idEnfermero', userId)
         }
+
         window.location.href = '/';
       } else {
-        alert("Correo o contraseña incorrectos");
+        alert("Correo o contraseña incorrectos")
       }
     })
     .catch(err => {
-      alert("Error al iniciar sesión");
-      console.error(err);
+      alert("Error al iniciar sesión")
+      console.error(err)
     });
 }
+
 </script>

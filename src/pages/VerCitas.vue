@@ -60,6 +60,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUsuarioStore } from '@/stores/usuario'
 import axios from 'axios'
 
 const rutBusqueda = ref('')
@@ -68,11 +69,11 @@ const idPaciente = ref(null)
 
 const router = useRouter()
 const accesoPermitido = ref(false)
+const usuario = useUsuarioStore()
 
 onMounted(() => {
-  const rolUsuario = localStorage.getItem('rol')
 
-  if (rolUsuario === 'paciente') {
+  if (usuario.getRol === 'paciente') {
     accesoPermitido.value = true
   } else {
     alert('No tienes permiso para acceder a esta página.')

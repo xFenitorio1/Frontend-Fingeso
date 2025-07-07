@@ -1,6 +1,6 @@
 <template>
     <v-app>
-        <v-container class="mt-16">
+        <v-container class="mt-16" v-if="accesoPermitido">
         <v-row justify="center">
             <v-col cols="12" md="8">
             <v-card>
@@ -41,12 +41,25 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const rol = ref(null)
 const idPaciente = ref(null)
 const citas = ref([])
 
+const router = useRouter()
+const accesoPermitido = ref(false)
 
+onMounted(() => {
+  const rolUsuario = localStorage.getItem('rol')
+
+  if (rolUsuario === 'paciente') {
+    accesoPermitido.value = true
+  } else {
+    alert('No tienes permiso para acceder a esta página.')
+    router.push('/')
+  }
+})
 
 const cargarCitas = async () => {
   try {

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-container style="margin-top: 64px;">
+    <v-container style="margin-top: 64px;" v-if="accesoPermitido">
       <v-row class="my-6" align="center">
         <v-col cols="8">
           <h2 class="text-h4">Listado de Medicamentos</h2>
@@ -76,12 +76,27 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AgregarMedicamento from '@/components/Medicamentos/AgregarMedicamentos.vue'
 
 const search = ref('')
 const cargado = ref(false)
 const medicamentos = ref([])
 const dialog = ref(false)
+
+const router = useRouter()
+const accesoPermitido = ref(false)
+
+onMounted(() => {
+  const rolUsuario = localStorage.getItem('rol')
+
+  if (rolUsuario === 'quimico_farmaceutico') {
+    accesoPermitido.value = true
+  } else {
+    alert('No tienes permiso para acceder a esta página.')
+    router.push('/')
+  }
+})
 
 async function cargarMedicamentos() {
   try {

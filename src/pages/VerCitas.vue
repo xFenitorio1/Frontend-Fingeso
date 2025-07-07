@@ -1,6 +1,6 @@
 <template>
   <v-app style="background-color: #fffdfc;">
-    <v-container>
+    <v-container v-if="accesoPermitido">
       <v-row justify="center" align="center" style="min-height: 80vh;">
         <v-col cols="12" md="8">
           <v-card>
@@ -58,12 +58,27 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const rutBusqueda = ref('')
 const citas = ref([])
 const idPaciente = ref(null)
+
+const router = useRouter()
+const accesoPermitido = ref(false)
+
+onMounted(() => {
+  const rolUsuario = localStorage.getItem('rol')
+
+  if (rolUsuario === 'paciente') {
+    accesoPermitido.value = true
+  } else {
+    alert('No tienes permiso para acceder a esta página.')
+    router.push('/')
+  }
+})
 
 function formatearRutBusqueda() {
   let valor = rutBusqueda.value.replace(/[^\dkK]/g, '')

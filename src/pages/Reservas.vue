@@ -380,7 +380,7 @@ async function enviarCita() {
 
     await axios.post(`http://localhost:8080/api/email/sentEmail?${emailParams.toString()}`)
 
-    mensaje.value = `¡Reserva realizada para RUT ${rut.value} en ${sucursal.value}, especialidad ${especialidad.value}, el ${fecha.value} con ${medicoNombre.value} a las ${hora.value}!`
+    mensaje.value = `¡Reserva realizada para RUT ${rut.value} en ${sucursal.value}, especialidad ${especialidad.value}, el ${fecha.value} con ${medicoNombre.value} a las ${hora.value}! Se ha enviado un correo de confirmación a ${correo.value}.`
 
   } catch (error) {
     mensaje.value = 'Error al registrar la cita o enviar el correo. Intenta nuevamente.'

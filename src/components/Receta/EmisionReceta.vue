@@ -6,7 +6,7 @@
         <v-form>
           <div class="mb-4">
             <div><strong>Paciente:</strong> {{ cita.paciente?.nombre }}</div>
-            <div><strong>RUT:</strong> {{ cita.paciente?.rut }}</div>
+            <div><strong>RUN:</strong> {{ cita.paciente?.rut }}</div>
           </div>
 
           <v-textarea

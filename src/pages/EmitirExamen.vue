@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-container>
+    <v-container v-if="accesoPermitido">
       <v-row justify="center">
         <v-col cols="12" md="8">
           <v-card>
@@ -47,12 +47,27 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const rut = ref('')
 const tipoExamen = ref('')
 const examenIndicado = ref('')
 const fechaEmision = ref('')
+
+const router = useRouter()
+const accesoPermitido = ref(false)
+
+onMounted(() => {
+  const rolUsuario = localStorage.getItem('rol')
+
+  if (rolUsuario === 'enfermero') {
+    accesoPermitido.value = true
+  } else {
+    alert('No tienes permiso para acceder a esta página.')
+    router.push('/')
+  }
+})
 
 function formatearRut(valor) {
   valor = valor.replace(/[^\dkK]/g, '')

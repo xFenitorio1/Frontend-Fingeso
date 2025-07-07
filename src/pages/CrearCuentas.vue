@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-container max-width="500px" class="mt-16">
+    <v-container max-width="500px" class="mt-16" v-if="accesoPermitido">
       <v-card>
         <v-card-title class="text-h5">Crear Cuenta de Clínica</v-card-title>
         <v-card-text>
@@ -82,7 +82,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const form = ref(null)
 const formValido = ref(false)
@@ -94,6 +95,20 @@ const password = ref('')
 const rol = ref('')
 const mensaje = ref('')
 const mensajeTipo = ref('success')
+
+const router = useRouter()
+const accesoPermitido = ref(false)
+
+onMounted(() => {
+  const rolUsuario = localStorage.getItem('rol')
+
+  if (rolUsuario === 'soporte_tecnico') {
+    accesoPermitido.value = true
+  } else {
+    alert('No tienes permiso para acceder a esta página.')
+    router.push('/')
+  }
+})
 
 const roles = [
   { label: 'Medico', value: 'medico' },

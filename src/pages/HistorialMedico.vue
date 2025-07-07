@@ -1,6 +1,6 @@
 <template>
   <v-app style="background-color: #fffdfc;">
-    <v-container>
+    <v-container v-if="accesoPermitido">
       <v-row justify="center" align="center" style="min-height: 80vh;">
         <v-col cols="12" md="8">
           <v-card>
@@ -51,9 +51,24 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const examenes = ref([])
 const recetas = ref([]) 
+
+const router = useRouter()
+const accesoPermitido = ref(false)
+
+onMounted(() => {
+  const rolUsuario = localStorage.getItem('rol')
+
+  if (rolUsuario === 'paciente') {
+    accesoPermitido.value = true
+  } else {
+    alert('No tienes permiso para acceder a esta página.')
+    router.push('/')
+  }
+})
 
 onMounted(async () => { 
 

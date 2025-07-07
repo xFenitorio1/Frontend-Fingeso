@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-container max-width="600px" class="mt-16">
+    <v-container max-width="600px" class="mt-16" v-if="accesoPermitido">
       <h2 class="text-h4 mb-6">Entregar Receta</h2>
       <v-text-field
         v-model="rutBusqueda"
@@ -69,7 +69,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const rutBusqueda = ref('')
@@ -77,6 +78,20 @@ const recetas = ref([])
 const pacienteInfo = ref({})
 const dialogo = ref(false)
 const recetaSeleccionada = ref(null)
+
+const router = useRouter()
+const accesoPermitido = ref(false)
+
+onMounted(() => {
+  const rolUsuario = localStorage.getItem('rol')
+
+  if (rolUsuario === 'quimico_farmaceutico') {
+    accesoPermitido.value = true
+  } else {
+    alert('No tienes permiso para acceder a esta página.')
+    router.push('/')
+  }
+})
 
 function formatearRutBusqueda() {
   let valor = rutBusqueda.value.replace(/[^\dkK]/g, '');

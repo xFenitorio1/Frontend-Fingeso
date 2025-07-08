@@ -73,22 +73,11 @@ async function procesarPago() {
 
   try {
 
-    // Enviar correo de comprobante
-    const emailParams = new URLSearchParams()
-    emailParams.append('to', correo)
-    emailParams.append('subject', 'Confirmación de de Cita Médica')
-    emailParams.append('fecha', fecha)
-    emailParams.append('hora', hora)
-    emailParams.append('servicio', especialidad)
-    emailParams.append('nombre', medico)
-
-    await axios.post(`http://localhost:8080/api/email/sentEmail?${emailParams.toString()}`)
-
-    mensaje.value = `¡Pago de $${precioEspecialidad.toLocaleString('es-CL')} realizado exitosamente! Se ha enviado un correo de confirmación a ${correo}.`
+    mensaje.value = `¡Pago de $${precioEspecialidad.toLocaleString('es-CL')} realizado exitosamente!`
 
     setTimeout(() => router.push('/'), 4000)
   } catch (error) {
-    mensaje.value = 'Error al enviar el correo de confirmación.'
+    mensaje.value = 'Error al enviar el procesar pago'
     console.error('Error al enviar correo:', error)
   } finally {
     cargando.value = false

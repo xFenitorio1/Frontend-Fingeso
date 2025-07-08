@@ -1,6 +1,6 @@
 <template>
   <v-app style="background-color: #fffdfc;">
-    <v-container v-if="accesoPermitido">
+    <v-container>
       <v-row justify="center" align="center" style="min-height: 80vh;">
         <v-col cols="12" md="8">
           <v-card>
@@ -45,6 +45,13 @@
                             >
                             Cancelar Cita
                         </v-btn>
+                        <v-btn
+                          color="primary"
+                          variant="flat"
+                          @click="irAPago(cita)"
+                        >
+                          Pagar
+                        </v-btn>
                     </v-card-actions>
                   </v-card>
                 </div>
@@ -71,15 +78,19 @@ const router = useRouter()
 const accesoPermitido = ref(false)
 const usuario = useUsuarioStore()
 
-onMounted(() => {
-
-  if (usuario.getRol === 'paciente') {
-    accesoPermitido.value = true
-  } else {
-    alert('No tienes permiso para acceder a esta página.')
-    router.push('/')
-  }
-})
+function irAPago(cita) {
+  router.push({
+    path: '/PagoSecretario',
+    query: {
+      rut: rutBusqueda.value,
+      correo: cita.paciente.correo,
+      especialidad: cita.medico?.especialidad || '',
+      medico: cita.medico?.nombre || '',
+      fecha: formatearFecha(cita.fechaCita), 
+      hora: cita.horaCita || '' 
+    }
+  })
+}
 
 function formatearRutBusqueda() {
   let valor = rutBusqueda.value.replace(/[^\dkK]/g, '')

@@ -30,10 +30,11 @@ const stock = ref(1)
 
 async function guardarStock() {
   try {
-    const nombre = encodeURIComponent(props.medicamento.nombreComercial);
-    const cantidad = stock.value;
+    const id = props.medicamento.idMedicamento
+    const cantidad = stock.value
 
-    await axios.put(`http://localhost:8080/api/medicamento/reabastecerMedicamentos/${nombre}/${cantidad}`);
+    await axios.put(`http://localhost:8080/api/medicamento/reabastecerMedicamentos/${id}/${cantidad}`)
+
 
     emit('actualizado') // Refresca el listado
     emit('cerrar')      // Cierra el diálogo

@@ -202,6 +202,9 @@ onMounted(async () => {
   } catch (e) {
     console.error('Error al cargar médicos:', e)
   }
+
+  await cargarCitasDisponibles()
+  console.log('Citas disponibles cargadas:', citasDisponibles.value)
 })
 
 // Filtra médicos por sucursal seleccionada
@@ -330,7 +333,7 @@ function resetearFormulario() {
 
 async function cargarCitasDisponibles() {
   try {
-    const response = await axios.get('http://localhost:8080/api/cita/getCitasDisponibles')
+    const response = await axios.get('http://localhost:8080/api/cita/disponibles/medico/{id}')
     citasDisponibles.value = response.data
   } catch (error) {
     console.error('Error al cargar citas disponibles:', error)
@@ -339,57 +342,48 @@ async function cargarCitasDisponibles() {
 
 async function enviarCita() {
   try {
-    let pacienteId, pacienteCompleto
+    let pacienteId
 
     try {
       // Intentar obtener paciente por RUT
       const { data } = await axios.get(`http://localhost:8080/api/paciente/getIdByRut/${rut.value}`)
       pacienteId = data
-      pacienteCompleto = (await axios.get(`http://localhost:8080/api/paciente/getPaciente/${pacienteId}`)).data
-
     } catch (error) {
-      // Si recibimos error 500, asumimos paciente no existe y lo creamos
+      // Si no existe, crear el paciente
       if (error.response && error.response.status === 500) {
-        console.warn('Paciente no encontrado. Intentando crearlo...')
+        console.warn('Paciente no encontrado. Creando...')
 
-        try {
-          // Crear paciente
+        await axios.post(`http://localhost:8080/api/paciente/crearPaciente`, {
+          rut: rut.value,
+          correo: correo.value,
+          rol: 'PACIENTE'
+        })
 
-          const respuestaCreacion = await axios.post(`http://localhost:8080/api/paciente/crearPaciente`, {
-            rut: rut.value,
-            correo: correo.value,
-            rol: 'PACIENTE'
-          })
-
-          console.log('Paciente creado:', respuestaCreacion.data)
-
-          // Reintentar obtener ID y paciente completo
-          const { data } = await axios.get(`http://localhost:8080/api/paciente/getIdByRut/${rut.value}`)
-          pacienteId = data
-          pacienteCompleto = (await axios.get(`http://localhost:8080/api/paciente/getPaciente/${pacienteId}`)).data
-
-        } catch (err2) {
-          console.error('Error al crear u obtener el paciente:', err2.response?.data || err2)
-          mensaje.value = 'No fue posible registrar al paciente. Intenta nuevamente.'
-          return
-        }
+        // Obtener ID nuevamente
+        const { data } = await axios.get(`http://localhost:8080/api/paciente/getIdByRut/${rut.value}`)
+        pacienteId = data
       } else {
-        // Si el error no es 500, relanzamos para que se maneje en el catch general
         throw error
       }
     }
 
-    // Obtener médico completo
-    const medicoCompleto = (await axios.get(`http://localhost:8080/api/medico/getMedico/${medico.value}`)).data
+    console.log('paciente:', pacienteId)
 
-    // Crear la cita
-    await axios.post('http://localhost:8080/api/cita/crearCita', {
-      fechaCita: fecha.value,
-      sucursal: sucursal.value,
-      horaCita: hora.value,
-      paciente: pacienteCompleto,
-      medico: medicoCompleto
-    })
+      // Buscar cita coincidente
+    const citaElegida = citasDelMedico.value.find(cita => {
+    const fechaCita = new Date(cita.fechaCita).toLocaleDateString('es-CL')
+    const fechaSeleccionada = new Date(fecha.value).toLocaleDateString('es-CL')
+    return cita.horaCita === hora.value && fechaCita === fechaSeleccionada
+  })
+
+    if (!citaElegida) {
+      mensaje.value = 'No se encontró una cita disponible para esa hora.'
+      return
+    }
+
+    console.log("Cita seleccionada:", citaElegida)
+    // Reservar la cita
+    await axios.put(`http://localhost:8080/api/cita/reservar/${citaElegida.idCita}/paciente/${pacienteId}`)
 
     // Actualizar reservas locales
     const clave = `${medico.value}-${fecha.value}`
@@ -409,10 +403,11 @@ async function enviarCita() {
     mostrarDialogoPago.value = true
 
   } catch (error) {
-    console.error('Error al registrar la cita o enviar el correo:', error)
-    mensaje.value = 'Error al registrar la cita o enviar el correo.'
+    console.error('Error al reservar la cita:', error)
+    mensaje.value = 'Error al reservar la cita. Intenta nuevamente.'
   }
 }
+
 
 
 function redirigirPagoOnline() {

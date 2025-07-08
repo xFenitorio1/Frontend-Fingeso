@@ -30,7 +30,7 @@
 
     <v-text-field
       v-model.number="medicamento.stockReal"
-      label="Stock Real"
+      label="Stock"
       type="number"
       min="0"
       :rules="[v => v >= 0 || 'Debe ser 0 o mayor']"

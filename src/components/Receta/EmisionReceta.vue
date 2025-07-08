@@ -35,7 +35,7 @@
           >
             <template #activator="{ props }">
               <v-text-field
-                v-model="vigencia"
+                :model-value="vigenciaVisual"
                 label="Vigencia"
                 prepend-icon="mdi-calendar"
                 readonly
@@ -48,18 +48,29 @@
               @update:model-value="menuFecha = false"
             />
           </v-menu>
+
           <v-divider class="my-4" />
           <h4>Medicamentos</h4>
 
+          <!-- Selector tipo medicamento -->
+          <v-select
+            v-model="tipoMedicamentoSeleccionado"
+            :items="tiposMedicamentos"
+            label="Filtrar por tipo de medicamento"
+            clearable
+            class="mb-4"
+          />
+
           <div v-for="(med, index) in medicamentosList" :key="index" class="d-flex align-center mb-2">
             <v-autocomplete
-              :items="listaMedicamentos"
+              :items="medicamentosFiltrados"
               :item-title="mostrarNombreConStock"
               item-value="idMedicamento"
               v-model="med.idMedicamento"
               label="Medicamento"
               class="me-4"
               style="flex: 1"
+              :disabled="!medicamentosFiltrados.length"
             />
             <v-text-field
               v-model="cantidades[index]"
@@ -76,7 +87,9 @@
       </v-card-text>
 
       <v-card-actions>
-        <v-btn color="primary" @click="emitirReceta">Emitir Receta</v-btn>
+        <v-btn color="primary" @click="emitirReceta">
+          {{ confirmarSinStock ? 'Emitir de todos modos' : 'Emitir Receta' }}
+        </v-btn>
         <v-btn color="grey" @click="$emit('update:modelValue', false)">Cancelar</v-btn>
       </v-card-actions>
     </v-card>
@@ -84,34 +97,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
 const props = defineProps({
   modelValue: Boolean,
   cita: Object
 })
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'recetaEmitida'])
 
 const observaciones = ref('')
 const diagnostico = ref('')
-const examen = ref('')
+const examenIndicado = ref('')
 const vigencia = ref('')
 const menuFecha = ref(false)
-const fechaEmision = ref(new Date().toISOString().substr(0, 10)) // yyyy-mm-dd
-const examenIndicado = ref('')
-const medicamentosSeleccionados = ref([])
-
-
+const fechaEmision = ref(new Date().toISOString().substr(0, 10))
 const medicamentosList = ref([{ idMedicamento: null }])
 const cantidades = ref([1])
 const listaMedicamentos = ref([])
+const confirmarSinStock = ref(false)
+
+const tipoMedicamentoSeleccionado = ref(null)
+
+// Obtener tipos únicos de medicamento para el filtro
+const tiposMedicamentos = computed(() => {
+  const tipos = listaMedicamentos.value.map(m => m.tipoMedicamento).filter(Boolean)
+  return [...new Set(tipos)]
+})
+
+// Filtrar medicamentos según tipo seleccionado
+const medicamentosFiltrados = computed(() => {
+  if (!tipoMedicamentoSeleccionado.value) return listaMedicamentos.value
+  return listaMedicamentos.value.filter(m => m.tipoMedicamento === tipoMedicamentoSeleccionado.value)
+})
 
 onMounted(async () => {
   try {
     const res = await axios.get('http://localhost:8080/api/medicamento/getMedicamentos')
     listaMedicamentos.value = res.data
-    console.log(listaMedicamentos.value)
   } catch (e) {
     console.error('Error cargando medicamentos:', e)
   }
@@ -131,9 +154,29 @@ function mostrarNombreConStock(item) {
   return `${item.nombreComercial} (Stock: ${item.stockReal ?? 'N/A'})`
 }
 
-async function emitirReceta() {
+const vigenciaVisual = computed(() => {
+  if (!vigencia.value) return ''
+  const d = new Date(vigencia.value)
+  if (isNaN(d.getTime())) return ''
+  const opciones = { weekday: 'short', day: '2-digit', month: 'short' }
+  return d.toLocaleDateString('es-CL', opciones)
+})
 
-    for (let i = 0; i < medicamentosList.value.length; i++) {
+function resetearFormulario() {
+  observaciones.value = ''
+  diagnostico.value = ''
+  examenIndicado.value = ''
+  vigencia.value = ''
+  medicamentosList.value = [{ idMedicamento: null }]
+  cantidades.value = [1]
+  tipoMedicamentoSeleccionado.value = null
+  confirmarSinStock.value = false
+}
+
+
+
+async function emitirReceta() {
+  for (let i = 0; i < medicamentosList.value.length; i++) {
     const idMed = medicamentosList.value[i].idMedicamento
     const cantidadDeseada = parseInt(cantidades.value[i])
     const medicamento = listaMedicamentos.value.find(m => m.idMedicamento === idMed)
@@ -144,12 +187,14 @@ async function emitirReceta() {
     }
 
     if (medicamento.stockReal - cantidadDeseada < 0) {
-      alert(`No hay stock suficiente para "${medicamento.nombreComercial}". Quedan ${medicamento.stockReal} unidades y se están solicitando ${cantidadDeseada}.`)
-      return
+      if (!confirmarSinStock.value) {
+        alert(`⚠️ El medicamento "${medicamento.nombreComercial}" no tiene stock suficiente. Si deseas emitir la receta igualmente, presiona el botón "Emitir de todos modos".`)
+        confirmarSinStock.value = true
+        return
+      }
     }
   }
 
-  console.log("cantidades:", cantidades.value);
   const receta = {
     fechaEmision: new Date(fechaEmision.value).toISOString(),
     vigencia: new Date(vigencia.value).toISOString(),
@@ -162,23 +207,17 @@ async function emitirReceta() {
     cantidadMedicamentos: cantidades.value.map(c => parseInt(c))
   }
 
-  console.log('Receta a emitir:', receta)
-
   try {
-    // 1. Crear la receta
     await axios.post('http://localhost:8080/api/receta/crearReceta', receta)
-
-    // 2. Marcar cita como atendida
     await axios.put(`http://localhost:8080/api/cita/atendidoPorMedico/${props.cita.idCita}`)
-
     emit('recetaEmitida', props.cita.idCita)
-
     alert('Receta emitida con éxito y cita marcada como atendida.')
+
+    resetearFormulario()
     emit('update:modelValue', false)
   } catch (error) {
-    console.error('Error al emitir receta o marcar como atendida:', error)
-    alert('Ocurrió un error al emitir la receta o marcar la cita como atendida.')
+    console.error('Error al emitir receta o marcar cita:', error)
+    alert('Error al emitir receta o marcar cita como atendida.')
   }
 }
-
 </script>

@@ -11,6 +11,8 @@ import CrearCuentas from '@/pages/CrearCuentas.vue'
 import AgendaPaciente from '@/pages/AgendaPaciente.vue'
 import EmitirExamen from '@/pages/EmitirExamen.vue'
 import VerCitas from '@/pages/VerCitas.vue'
+import SimuladorPago from '@/pages/SimuladorPago.vue'
+import AgendarHoras from '@/pages/AgendarHoras.vue'
 
 
 const routes = [
@@ -26,6 +28,8 @@ const routes = [
   { path: '/AgendaPaciente', component: AgendaPaciente },
   { path: '/EmitirExamen', component: EmitirExamen },
   { path: '/VerCitas', component: VerCitas },
+  { path: '/SimuladorPago', component: SimuladorPago },
+  { path: '/AgendarHoras', component: AgendarHoras }
 ]
 
 const router = createRouter({

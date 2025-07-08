@@ -16,7 +16,7 @@
         <v-btn >Generar reporte</v-btn>
         
         <!-- Solo para médicos -->
-        <v-btn color="white" variant="flat" class="text-primary" to="/Agenda">
+        <v-btn color="white" variant="flat" class="text-primary" to="/AgendarHoras">
             Agendar horas medicos</v-btn>
     </v-app-bar>
 </template>

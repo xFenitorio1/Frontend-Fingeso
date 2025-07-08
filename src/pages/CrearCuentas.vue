@@ -67,6 +67,17 @@
               class="mt-2"
             />
 
+            <v-select
+              v-if="['medico', 'enfermero', 'gerente'].includes(rol)"
+              v-model="sucursalSeleccionada"
+              :items="sucursalesDisponibles"
+              item-title="nombre"
+              item-value="id"
+              label="Sucursal"
+              :rules="[v => !!v || 'La sucursal es obligatoria']"
+              required
+            />
+
             <v-btn color="primary" class="mt-4" block type="submit" :disabled="!formValido">
               Crear Cuenta
             </v-btn>
@@ -95,6 +106,8 @@ const password = ref('')
 const rol = ref('')
 const mensaje = ref('')
 const mensajeTipo = ref('success')
+const sucursalSeleccionada = ref(null)
+
 
 const router = useRouter()
 const accesoPermitido = ref(false)
@@ -109,6 +122,12 @@ onMounted(() => {
     router.push('/')
   }
 })
+
+const sucursalesDisponibles = ref([
+  { id: 2, nombre: 'Sucursal Centro' },
+  { id: 1, nombre: 'Sucursal Norte' },
+  { id: 3, nombre: 'Sucursal Sur' }
+])
 
 const roles = [
   { label: 'Medico', value: 'medico' },
@@ -137,12 +156,16 @@ async function crearCuenta() {
 
     mensaje.value = ''
     const datosAEnviar = {
-        correo: correoPreview.value,
-        nombre: nombre.value,
-        rut: rut.value,
-        especialidad: especialidad.value || '', // Solo enviar especialidad si es medico
-        password: password.value,
-        rol: rol.value
+      correo: correoPreview.value,
+      nombre: nombre.value,
+      rut: rut.value,
+      especialidad: especialidad.value || '',
+      password: password.value,
+      rol: rol.value
+    }
+
+    if (['medico', 'enfermero', 'gerente'].includes(rol.value)) {
+      datosAEnviar.sucursales = [{ idSucursal: sucursalSeleccionada.value }]
     }
     console.log('Datos enviados al backend:', datosAEnviar)
 

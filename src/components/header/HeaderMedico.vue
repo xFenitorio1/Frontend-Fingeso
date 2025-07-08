@@ -13,7 +13,6 @@
             Clínica Umbrella
         </v-app-bar-title>
         <v-btn @click="cerrarSesion">Cerrar Sesión</v-btn>
-        <v-btn to="/Medicamentos">Medicamentos</v-btn>
         
         <!-- Solo para médicos -->
         <v-btn color="white" variant="flat" class="text-primary" to="/Agenda">
